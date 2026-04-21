@@ -886,6 +886,8 @@
 </div>
 
 <script>
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyT6pGkFC8WaeHsBtcmYw-hbyNYeq7eYRWyep9Gto5Xj0VrIGXbKIXIWA4veJxneKs/exec";
+
 let CLIENTES = [];
 
 // ── Login ──────────────────────────────────────────────
@@ -893,39 +895,31 @@ async function verificarCodigo() {
   const codigo = document.getElementById('login-input').value;
   if (!codigo) return;
 
-  google.script.run
-    .withSuccessHandler(function(valido) {
-      if (valido) {
-        document.getElementById('login-screen').innerHTML =
-          '<div style="color:white;font-family:Bebas Neue,sans-serif;font-size:26px;letter-spacing:3px;text-align:center;padding:40px;">CARGANDO...</div>';
-        cargarClientes().then(function() {
-          document.getElementById('login-screen').style.display = 'none';
-        });
-      } else {
-        document.getElementById('login-error').style.display = 'block';
-        document.getElementById('login-input').value = '';
-      }
-    })
-    .withFailureHandler(function() {
+  try {
+    const res = await fetch(APPS_SCRIPT_URL + '?action=login&codigo=' + encodeURIComponent(codigo));
+    const data = await res.json();
+    if (data.ok) {
+      document.getElementById('login-screen').innerHTML =
+        '<div style="color:white;font-family:Bebas Neue,sans-serif;font-size:26px;letter-spacing:3px;text-align:center;padding:40px;">CARGANDO...</div>';
+      await cargarClientes();
+      document.getElementById('login-screen').style.display = 'none';
+    } else {
       document.getElementById('login-error').style.display = 'block';
-    })
-    .verificarCodigoServidor(codigo);
+      document.getElementById('login-input').value = '';
+    }
+  } catch(err) {
+    document.getElementById('login-error').style.display = 'block';
+  }
 }
 
 // ── Clientes ───────────────────────────────────────────
 async function cargarClientes() {
-  return new Promise(function(resolve) {
-    google.script.run
-      .withSuccessHandler(function(data) {
-        CLIENTES = data;
-        resolve();
-      })
-      .withFailureHandler(function(err) {
-        console.error('Error cargando clientes:', err);
-        resolve();
-      })
-      .getClientesData();
-  });
+  try {
+    const res = await fetch(APPS_SCRIPT_URL + '?action=clientes');
+    CLIENTES = await res.json();
+  } catch(err) {
+    console.error('Error cargando clientes:', err);
+  }
 }
 
 // ── Estado ─────────────────────────────────────────────
@@ -1164,44 +1158,49 @@ function enviarDatos() {
   const fecha = `${ahora.getDate()}/${ahora.getMonth()+1}/${ahora.getFullYear()}`;
   mostrarModal(`<div class="spinner"></div><h2>ENVIANDO...</h2><p>Subiendo el reporte a Google Sheets</p>`);
 
-  const payload = pedidos.map(p => ({
-    cliente: p.nombre,
-    colonia: p.colonia,
-    alcalina: p.alc,
-    purificada: p.pur,
-    nuevo_garrafon: p.nue,
-    metodo_pago: p.pago,
-    monto: p.monto
-  }));
+  const payload = {
+    fecha,
+    pedidos: pedidos.map(p => ({
+      cliente: p.nombre,
+      colonia: p.colonia,
+      alcalina: p.alc,
+      purificada: p.pur,
+      nuevo_garrafon: p.nue,
+      metodo_pago: p.pago,
+      monto: p.monto
+    }))
+  };
 
-  google.script.run
-    .withSuccessHandler(function(res) {
-      const totEf = pedidos.filter(p => p.pago === 'efectivo').reduce((s,p) => s + p.monto, 0);
-      mostrarModal(`
-        <div class="modal-icon success">✅</div>
-        <h2>¡ENVIADO!</h2>
-        <p>Reporte registrado correctamente.</p>
-        <div class="modal-efectivo">
-          <div class="lbl">💵 Efectivo a entregar</div>
-          <div class="monto">$${totEf.toFixed(2)}</div>
-        </div>
-        <div class="modal-btns">
-          <button class="modal-btn close" onclick="cerrarModal(); limpiarTodo()">LISTO</button>
-        </div>
-      `);
-    })
-    .withFailureHandler(function() {
-      mostrarModal(`
-        <div class="modal-icon error">❌</div>
-        <h2>ERROR</h2>
-        <p>No se pudo enviar. Intenta de nuevo.</p>
-        <div class="modal-btns">
-          <button class="modal-btn cancel" onclick="cerrarModal()">CERRAR</button>
-          <button class="modal-btn ok" onclick="enviarDatos()">REINTENTAR</button>
-        </div>
-      `);
-    })
-    .guardarPedidos(fecha, payload);
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(() => {
+    const totEf = pedidos.filter(p => p.pago === 'efectivo').reduce((s,p) => s + p.monto, 0);
+    mostrarModal(`
+      <div class="modal-icon success">✅</div>
+      <h2>¡ENVIADO!</h2>
+      <p>Reporte registrado correctamente.</p>
+      <div class="modal-efectivo">
+        <div class="lbl">💵 Efectivo a entregar</div>
+        <div class="monto">$${totEf.toFixed(2)}</div>
+      </div>
+      <div class="modal-btns">
+        <button class="modal-btn close" onclick="cerrarModal(); limpiarTodo()">LISTO</button>
+      </div>
+    `);
+  }).catch(() => {
+    mostrarModal(`
+      <div class="modal-icon error">❌</div>
+      <h2>ERROR</h2>
+      <p>No se pudo enviar. Intenta de nuevo.</p>
+      <div class="modal-btns">
+        <button class="modal-btn cancel" onclick="cerrarModal()">CERRAR</button>
+        <button class="modal-btn ok" onclick="enviarDatos()">REINTENTAR</button>
+      </div>
+    `);
+  });
 }
 
 function limpiarTodo() {
