@@ -11,166 +11,1006 @@
 <meta name="apple-mobile-web-app-title" content="AQUINA">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
+
   :root {
-    --azul:#0a4d8c; --azul-claro:#1a7fd4; --agua:#e8f4fd; --acento:#00c2ff;
-    --texto:#0d1b2a; --gris:#6b7c93; --bg:#f0f7ff; --blanco:#ffffff;
-    --verde:#00b87c; --rojo:#e53935; --naranja:#ff7043; --morado:#7c3aed;
-    --sombra:0 4px 24px rgba(10,77,140,0.13);
+    --azul: #0a4d8c;
+    --azul-claro: #1a7fd4;
+    --agua: #e8f4fd;
+    --acento: #00c2ff;
+    --texto: #0d1b2a;
+    --gris: #6b7c93;
+    --bg: #f0f7ff;
+    --blanco: #ffffff;
+    --verde: #00b87c;
+    --rojo: #e53935;
+    --naranja: #ff7043;
+    --morado: #7c3aed;
+    --sombra: 0 4px 24px rgba(10,77,140,0.13);
   }
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--texto);min-height:100vh;padding-bottom:60px;-webkit-tap-highlight-color:transparent;}
-  header{background:linear-gradient(135deg,var(--azul) 0%,var(--azul-claro) 100%);padding:16px 16px 12px;display:flex;align-items:center;gap:12px;box-shadow:var(--sombra);}
-  .logo-mark{width:42px;height:42px;background:rgba(255,255,255,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--acento);flex-shrink:0;}
-  .header-text h1{font-family:'Bebas Neue',sans-serif;font-size:24px;color:white;letter-spacing:2px;line-height:1;}
-  .header-text p{font-size:11px;color:rgba(255,255,255,0.65);margin-top:2px;font-weight:300;}
-  .fecha-badge{margin-left:auto;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:5px 10px;text-align:center;}
-  .fecha-badge .dia{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--acento);line-height:1;}
-  .fecha-badge .mes{font-size:10px;color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:1px;}
-  .tabs{display:flex;background:white;border-bottom:2px solid var(--agua);position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(10,77,140,0.08);}
-  .tab-btn{flex:1;padding:14px 8px;border:none;background:transparent;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.5px;color:var(--gris);cursor:pointer;border-bottom:3px solid transparent;transition:all 0.2s;}
-  .tab-btn.active{color:var(--azul);border-bottom-color:var(--azul-claro);}
-  .tab-content{display:none;}
-  .tab-content.active{display:block;}
-  .container{padding:14px;width:100%;}
-  .card{background:var(--blanco);border-radius:16px;padding:16px;box-shadow:var(--sombra);margin-bottom:14px;}
-  .section-label{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:var(--gris);margin-bottom:10px;}
-  .search-wrap{position:relative;}
-  .search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:18px;pointer-events:none;}
-  #buscar-cliente{width:100%;padding:14px 14px 14px 44px;border:2px solid #dce8f5;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:17px;color:var(--texto);background:var(--agua);outline:none;transition:border-color 0.2s;}
-  #buscar-cliente:focus{border-color:var(--azul-claro);background:white;}
-  #lista-sugerencias{position:absolute;top:calc(100% + 4px);left:0;right:0;background:white;border:1.5px solid #c5dff5;border-radius:12px;max-height:240px;overflow-y:auto;z-index:100;box-shadow:0 8px 32px rgba(10,77,140,0.15);display:none;}
-  #lista-sugerencias.visible{display:block;}
-  .sugerencia-item{padding:14px 16px;cursor:pointer;font-size:16px;border-bottom:1px solid #f0f4f8;}
-  .sugerencia-item:last-child{border-bottom:none;}
-  .sugerencia-item:active{background:var(--agua);}
-  .sugerencia-item .nombre{font-weight:500;color:var(--texto);}
-  .sugerencia-item .colonia{font-size:12px;color:var(--gris);margin-top:2px;}
-  mark{background:#c8e6ff;color:var(--azul);border-radius:2px;font-weight:600;}
-  .cliente-seleccionado{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:14px;border-bottom:1.5px solid var(--agua);}
-  .cliente-avatar{width:42px;height:42px;background:linear-gradient(135deg,var(--azul),var(--azul-claro));border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:20px;color:white;flex-shrink:0;}
-  .cliente-info .nombre{font-weight:600;font-size:16px;line-height:1.2;}
-  .cliente-info .colonia{font-size:13px;color:var(--gris);margin-top:2px;}
-  .tipos-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;}
-  .tipo-item{text-align:center;}
-  .tipo-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:block;}
-  .tipo-label.alcalina{color:var(--azul-claro);}
-  .tipo-label.purificada{color:var(--verde);}
-  .tipo-label.nuevo{color:var(--naranja);}
-  .contador{display:flex;align-items:center;justify-content:center;border:2px solid #dce8f5;border-radius:12px;overflow:hidden;background:var(--agua);}
-  .cnt-btn{width:40px;height:46px;border:none;background:transparent;font-size:24px;font-weight:300;color:var(--azul);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-  .cnt-btn:active{background:#c8e6ff;}
-  .cnt-val{flex:1;text-align:center;font-weight:700;font-size:24px;color:var(--texto);}
-  .pago-opciones{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
-  .pago-btn{padding:14px 6px;border:2px solid #dce8f5;border-radius:12px;background:var(--agua);text-align:center;cursor:pointer;transition:all 0.15s;}
-  .pago-btn .pago-icono{font-size:24px;display:block;margin-bottom:4px;}
-  .pago-btn .pago-nombre{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--gris);}
-  .pago-btn.selected-efectivo{border-color:var(--verde);background:#d4f5e9;}
-  .pago-btn.selected-efectivo .pago-nombre{color:#007a52;}
-  .pago-btn.selected-transferencia{border-color:var(--azul-claro);background:#dbeeff;}
-  .pago-btn.selected-transferencia .pago-nombre{color:var(--azul);}
-  .pago-btn.selected-terminal{border-color:var(--naranja);background:#fde8e0;}
-  .pago-btn.selected-terminal .pago-nombre{color:#bf3c00;}
-  .monto-section{margin-bottom:16px;display:none;}
-  .monto-section.visible{display:block;}
-  .monto-wrap{display:flex;align-items:center;border:2px solid #dce8f5;border-radius:12px;overflow:hidden;background:var(--agua);}
-  .monto-wrap:focus-within{border-color:var(--verde);background:white;}
-  .monto-prefix{padding:0 14px;font-size:22px;font-weight:700;color:var(--verde);border-right:1.5px solid #dce8f5;height:52px;display:flex;align-items:center;}
-  .monto-prefix.rojo{color:var(--rojo);}
-  input[type=number]{flex:1;padding:14px;border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:22px;font-weight:600;color:var(--texto);outline:none;width:100%;}
-  .opcional-badge{font-size:10px;font-weight:600;background:#f0f4f8;color:var(--gris);padding:2px 7px;border-radius:10px;text-transform:uppercase;letter-spacing:0.5px;}
-  textarea{width:100%;padding:12px 14px;border:2px solid #dce8f5;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--texto);background:var(--agua);outline:none;resize:none;height:72px;transition:border-color 0.2s;}
-  textarea:focus{border-color:var(--azul-claro);background:white;}
-  .btn-primary{width:100%;padding:16px;background:linear-gradient(135deg,var(--azul),var(--azul-claro));color:white;border:none;border-radius:14px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.2s,transform 0.1s;}
-  .btn-primary:active{opacity:0.85;transform:scale(0.98);}
-  .btn-primary:disabled{opacity:0.4;cursor:not-allowed;}
-  .btn-purple{background:linear-gradient(135deg,#7c3aed,#9f5cf7);}
-  .list-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-  .list-titulo{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1.5px;color:var(--azul);}
-  .list-count{background:var(--azul-claro);color:white;font-size:13px;font-weight:600;padding:3px 10px;border-radius:20px;}
-  .pedido-item{background:white;border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 2px 10px rgba(10,77,140,0.08);display:flex;align-items:flex-start;gap:12px;animation:slideIn 0.25s ease;}
-  @keyframes slideIn{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
-  .pedido-avatar{width:38px;height:38px;background:linear-gradient(135deg,var(--azul),var(--azul-claro));border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:18px;color:white;flex-shrink:0;margin-top:2px;}
-  .pedido-info{flex:1;min-width:0;}
-  .pedido-nombre{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .pedido-comentario{font-size:12px;color:var(--gris);margin-top:3px;font-style:italic;}
-  .pedido-fila2{display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap;}
-  .tag{font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px;}
-  .tag.alc{background:#dbeeff;color:var(--azul);}
-  .tag.pur{background:#d4f5e9;color:#007a52;}
-  .tag.nue{background:#fde8e0;color:#bf3c00;}
-  .pago-tag{font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;}
-  .pago-tag.efectivo{background:#d4f5e9;color:#007a52;}
-  .pago-tag.transferencia{background:#dbeeff;color:var(--azul);}
-  .pago-tag.terminal{background:#fde8e0;color:#bf3c00;}
-  .monto-tag{font-size:13px;font-weight:700;color:var(--texto);margin-left:auto;}
-  .item-del{width:34px;height:34px;background:#fde8e0;border:none;border-radius:8px;color:var(--rojo);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-  .item-del:active{background:#f5c6c2;}
-  .resumen-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;}
-  .resumen-stat{background:var(--agua);border-radius:12px;padding:12px;text-align:center;}
-  .resumen-stat .num{font-family:'Bebas Neue',sans-serif;font-size:32px;line-height:1;}
-  .resumen-stat .num.alc{color:var(--azul-claro);}
-  .resumen-stat .num.pur{color:var(--verde);}
-  .resumen-stat .num.nue{color:var(--naranja);}
-  .resumen-stat .lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--gris);margin-top:2px;}
-  .pagos-desglose{display:flex;gap:10px;margin-top:10px;}
-  .pago-res{flex:1;background:var(--agua);border-radius:10px;padding:10px;text-align:center;}
-  .pago-res .pr-n{font-family:'Bebas Neue',sans-serif;font-size:20px;line-height:1;}
-  .pago-res .pr-n.ef{color:var(--verde);}
-  .pago-res .pr-n.tr{color:var(--azul-claro);}
-  .pago-res .pr-n.te{color:var(--naranja);}
-  .pago-res .pr-l{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--gris);margin-top:2px;}
-  .gasto-tipos{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
-  .gt-btn{padding:14px 10px;border:2px solid #dce8f5;border-radius:12px;background:var(--agua);text-align:center;cursor:pointer;transition:all 0.15s;}
-  .gt-btn .gt-icono{font-size:22px;display:block;margin-bottom:4px;}
-  .gt-btn .gt-nombre{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--gris);}
-  .gt-btn.selected{border-color:var(--morado);background:#f3e8ff;}
-  .gt-btn.selected .gt-nombre{color:var(--morado);}
-  .ticket-area{border:2px dashed #c5dff5;border-radius:12px;padding:20px;text-align:center;cursor:pointer;background:var(--agua);position:relative;margin-bottom:14px;}
-  .ticket-area input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
-  #ticket-preview{width:100%;border-radius:10px;margin-top:10px;display:none;max-height:200px;object-fit:cover;}
-  .gasto-item{background:white;border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 2px 8px rgba(10,77,140,0.08);display:flex;align-items:center;gap:10px;animation:slideIn 0.25s ease;}
-  .gasto-icono-badge{width:38px;height:38px;background:#f3e8ff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
-  .gasto-info{flex:1;}
-  .gasto-tipo-txt{font-weight:600;font-size:14px;}
-  .gasto-desc-txt{font-size:12px;color:var(--gris);margin-top:2px;}
-  .gasto-ticket-tag{font-size:10px;background:#f3e8ff;color:var(--morado);padding:2px 7px;border-radius:6px;font-weight:600;display:inline-block;margin-top:3px;}
-  .gasto-monto-txt{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--rojo);flex-shrink:0;}
-  .efectivo-box{background:linear-gradient(135deg,#00963f,#00c25a);border-radius:14px;padding:16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-  .efectivo-label{color:rgba(255,255,255,0.85);font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:1px;}
-  .efectivo-monto{font-family:'Bebas Neue',sans-serif;font-size:32px;color:white;}
-  .gastos-box{background:#fde8e0;border-radius:12px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-  .gastos-label{color:var(--rojo);font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:1px;}
-  .gastos-monto{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--rojo);}
-  .btn-enviar-fijo{position:fixed;bottom:0;left:0;right:0;padding:14px 16px;background:linear-gradient(135deg,#00963f,#00c25a);color:white;border:none;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;cursor:pointer;display:none;align-items:center;justify-content:center;gap:10px;box-shadow:0 -4px 20px rgba(0,150,63,0.3);z-index:49;}
-  .btn-enviar-fijo.visible{display:flex;}
-  .btn-enviar-fijo:active{opacity:0.85;}
-  .overlay{position:fixed;inset:0;background:rgba(10,30,50,0.7);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
-  .overlay.visible{display:flex;}
-  .modal{background:white;border-radius:20px;padding:24px;width:100%;max-width:400px;text-align:center;max-height:85vh;overflow-y:auto;}
-  .modal-icon{width:64px;height:64px;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:30px;}
-  .modal-icon.confirm{background:#d4f5e9;}
-  .modal-icon.success{background:#d4f5e9;}
-  .modal-icon.error{background:#fde8e0;}
-  .modal h2{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:var(--texto);margin-bottom:8px;}
-  .modal p{font-size:14px;color:var(--gris);line-height:1.6;margin-bottom:16px;}
-  .modal-efectivo{background:#d4f5e9;border-radius:12px;padding:14px;margin:12px 0 16px;}
-  .modal-efectivo .lbl{font-size:12px;color:#007a52;font-weight:600;text-transform:uppercase;letter-spacing:1px;}
-  .modal-efectivo .monto{font-family:'Bebas Neue',sans-serif;font-size:40px;color:#007a52;line-height:1;}
-  .modal-gastos{background:#fde8e0;border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-  .modal-gastos .lbl{font-size:12px;color:var(--rojo);font-weight:600;text-transform:uppercase;}
-  .modal-gastos .monto{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--rojo);}
-  .modal-btns{display:flex;gap:10px;}
-  .modal-btn{flex:1;padding:14px;border:none;border-radius:12px;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:1.5px;cursor:pointer;}
-  .modal-btn.cancel{background:var(--agua);color:var(--gris);}
-  .modal-btn.ok{background:linear-gradient(135deg,#00963f,#00c25a);color:white;}
-  .modal-btn.close{background:var(--azul-claro);color:white;}
-  .spinner{width:44px;height:44px;border:4px solid #dce8f5;border-top-color:var(--azul-claro);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px;}
-  @keyframes spin{to{transform:rotate(360deg);}}
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--texto);
+    min-height: 100vh;
+    padding-bottom: 40px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  header {
+    background: linear-gradient(135deg, var(--azul) 0%, var(--azul-claro) 100%);
+    padding: 16px 16px 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: var(--sombra);
+  }
+
+  .logo-mark {
+    width: 42px; height: 42px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    color: var(--acento);
+    flex-shrink: 0;
+  }
+
+  .header-text h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    color: white;
+    letter-spacing: 2px;
+    line-height: 1;
+  }
+
+  .header-text p {
+    font-size: 12px;
+    color: rgba(255,255,255,0.65);
+    margin-top: 2px;
+    font-weight: 300;
+  }
+
+  .fecha-badge {
+    margin-left: auto;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    padding: 5px 10px;
+    text-align: center;
+  }
+
+  .fecha-badge .dia {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--acento);
+    line-height: 1;
+  }
+
+  .fecha-badge .mes {
+    font-size: 10px;
+    color: rgba(255,255,255,0.7);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    background: white;
+    border-bottom: 2px solid var(--agua);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .tab-btn {
+    flex: 1;
+    padding: 14px 8px;
+    border: none;
+    background: transparent;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 15px;
+    letter-spacing: 1.5px;
+    color: var(--gris);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+  }
+
+  .tab-btn.active {
+    color: var(--azul);
+    border-bottom-color: var(--azul-claro);
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .container { padding: 14px; width: 100%; }
+
+  /* BUSCADOR */
+  .search-section {
+    background: var(--blanco);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: var(--sombra);
+    margin-bottom: 14px;
+  }
+
+  .search-label {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--gris);
+    margin-bottom: 10px;
+  }
+
+  .search-wrap { position: relative; }
+
+  .search-icon {
+    position: absolute;
+    left: 14px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    pointer-events: none;
+  }
+
+  #buscar-cliente {
+    width: 100%;
+    padding: 14px 14px 14px 44px;
+    border: 2px solid #dce8f5;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 17px;
+    color: var(--texto);
+    background: var(--agua);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  #buscar-cliente:focus {
+    border-color: var(--azul-claro);
+    background: white;
+  }
+
+  #lista-sugerencias {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0; right: 0;
+    background: white;
+    border: 1.5px solid #c5dff5;
+    border-radius: 12px;
+    max-height: 240px;
+    overflow-y: auto;
+    z-index: 100;
+    box-shadow: 0 8px 32px rgba(10,77,140,0.15);
+    display: none;
+  }
+
+  #lista-sugerencias.visible { display: block; }
+
+  .sugerencia-item {
+    padding: 14px 16px;
+    cursor: pointer;
+    font-size: 16px;
+    border-bottom: 1px solid #f0f4f8;
+    transition: background 0.1s;
+  }
+
+  .sugerencia-item:last-child { border-bottom: none; }
+  .sugerencia-item:active { background: var(--agua); }
+  .sugerencia-item .nombre { font-weight: 500; color: var(--texto); }
+  .sugerencia-item .colonia { font-size: 12px; color: var(--gris); margin-top: 2px; }
+
+  mark {
+    background: #c8e6ff;
+    color: var(--azul);
+    border-radius: 2px;
+    font-weight: 600;
+  }
+
+  /* CANTIDADES */
+  .cantidades-card {
+    background: var(--blanco);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: var(--sombra);
+    margin-bottom: 14px;
+    display: none;
+  }
+
+  .cantidades-card.visible { display: block; }
+
+  .cliente-seleccionado {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1.5px solid var(--agua);
+  }
+
+  .cliente-avatar {
+    width: 42px; height: 42px;
+    background: linear-gradient(135deg, var(--azul), var(--azul-claro));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .cliente-info .nombre { font-weight: 600; font-size: 16px; line-height: 1.2; }
+  .cliente-info .colonia { font-size: 13px; color: var(--gris); margin-top: 2px; }
+
+  .tipos-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .tipo-item { text-align: center; }
+
+  .tipo-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .tipo-label.alcalina { color: var(--azul-claro); }
+  .tipo-label.purificada { color: var(--verde); }
+  .tipo-label.nuevo { color: var(--naranja); }
+
+  .contador {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #dce8f5;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--agua);
+  }
+
+  .cnt-btn {
+    width: 40px; height: 46px;
+    border: none;
+    background: transparent;
+    font-size: 24px;
+    font-weight: 300;
+    color: var(--azul);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .cnt-btn:active { background: #c8e6ff; }
+
+  .cnt-val {
+    flex: 1;
+    text-align: center;
+    font-weight: 700;
+    font-size: 24px;
+    color: var(--texto);
+  }
+
+  /* PAGO */
+  .pago-section { margin-bottom: 16px; }
+
+  .pago-label {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--gris);
+    margin-bottom: 10px;
+  }
+
+  .pago-opciones {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+  }
+
+  .pago-btn {
+    padding: 14px 6px;
+    border: 2px solid #dce8f5;
+    border-radius: 12px;
+    background: var(--agua);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .pago-btn .pago-icono { font-size: 24px; display: block; margin-bottom: 4px; }
+  .pago-btn .pago-nombre {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--gris);
+  }
+
+  .pago-btn.selected-efectivo { border-color: var(--verde); background: #d4f5e9; }
+  .pago-btn.selected-efectivo .pago-nombre { color: #007a52; }
+  .pago-btn.selected-transferencia { border-color: var(--azul-claro); background: #dbeeff; }
+  .pago-btn.selected-transferencia .pago-nombre { color: var(--azul); }
+  .pago-btn.selected-terminal { border-color: var(--naranja); background: #fde8e0; }
+  .pago-btn.selected-terminal .pago-nombre { color: #bf3c00; }
+
+  /* MONTO */
+  .monto-section { margin-bottom: 16px; display: none; }
+  .monto-section.visible { display: block; }
+
+  .monto-label {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--gris);
+    margin-bottom: 10px;
+  }
+
+  .monto-wrap {
+    display: flex;
+    align-items: center;
+    border: 2px solid #dce8f5;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--agua);
+  }
+
+  .monto-wrap:focus-within { border-color: var(--verde); background: white; }
+
+  .monto-prefix {
+    padding: 0 14px;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--verde);
+    border-right: 1.5px solid #dce8f5;
+    height: 52px;
+    display: flex; align-items: center;
+  }
+
+  #monto-input {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--texto);
+    outline: none;
+    width: 100%;
+  }
+
+  /* COMENTARIO */
+  .comentario-section { margin-bottom: 16px; }
+
+  .comentario-label {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--gris);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .opcional-badge {
+    font-size: 10px;
+    font-weight: 600;
+    background: #f0f4f8;
+    color: var(--gris);
+    padding: 2px 7px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  #comentario-input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid #dce8f5;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--texto);
+    background: var(--agua);
+    outline: none;
+    resize: none;
+    transition: border-color 0.2s;
+    height: 72px;
+  }
+
+  #comentario-input:focus {
+    border-color: var(--azul-claro);
+    background: white;
+  }
+
+  .btn-agregar {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--azul), var(--azul-claro));
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+
+  .btn-agregar:active { opacity: 0.85; transform: scale(0.98); }
+  .btn-agregar:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* PEDIDOS */
+  .pedidos-section { margin-bottom: 14px; }
+
+  .pedidos-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .pedidos-titulo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 1.5px;
+    color: var(--azul);
+  }
+
+  .pedidos-count {
+    background: var(--azul-claro);
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  .pedido-item {
+    background: white;
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 10px rgba(10,77,140,0.08);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    animation: slideIn 0.25s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .pedido-avatar {
+    width: 38px; height: 38px;
+    background: linear-gradient(135deg, var(--azul), var(--azul-claro));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    color: white;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .pedido-info { flex: 1; min-width: 0; }
+  .pedido-nombre { font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pedido-comentario { font-size: 12px; color: var(--gris); margin-top: 3px; font-style: italic; }
+
+  .pedido-fila2 {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+  .tag.alc { background: #dbeeff; color: var(--azul); }
+  .tag.pur { background: #d4f5e9; color: #007a52; }
+  .tag.nue { background: #fde8e0; color: #bf3c00; }
+
+  .pago-tag {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+  .pago-tag.efectivo { background: #d4f5e9; color: #007a52; }
+  .pago-tag.transferencia { background: #dbeeff; color: var(--azul); }
+  .pago-tag.terminal { background: #fde8e0; color: #bf3c00; }
+
+  .monto-tag {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--texto);
+    margin-left: auto;
+  }
+
+  .pedido-del {
+    width: 34px; height: 34px;
+    background: #fde8e0;
+    border: none;
+    border-radius: 8px;
+    color: var(--rojo);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .pedido-del:active { background: #f5c6c2; }
+
+  /* RESUMEN */
+  .resumen-card {
+    background: white;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: var(--sombra);
+    margin-bottom: 14px;
+    display: none;
+  }
+
+  .resumen-card.visible { display: block; }
+
+  .resumen-titulo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 1.5px;
+    color: var(--gris);
+    margin-bottom: 10px;
+  }
+
+  .resumen-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .resumen-stat {
+    background: var(--agua);
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .resumen-stat .num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    line-height: 1;
+  }
+
+  .resumen-stat .num.alc { color: var(--azul-claro); }
+  .resumen-stat .num.pur { color: var(--verde); }
+  .resumen-stat .num.nue { color: var(--naranja); }
+
+  .resumen-stat .lbl {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--gris);
+    margin-top: 2px;
+  }
+
+  .efectivo-box {
+    background: linear-gradient(135deg, #00963f, #00c25a);
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .efectivo-label {
+    color: rgba(255,255,255,0.85);
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .efectivo-monto {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    color: white;
+  }
+
+  .pagos-desglose {
+    display: flex;
+    gap: 10px;
+  }
+
+  .pago-resumen-item {
+    flex: 1;
+    background: var(--agua);
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+  }
+
+  .pago-resumen-item .pr-monto {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    line-height: 1;
+  }
+  .pago-resumen-item .pr-monto.ef { color: var(--verde); }
+  .pago-resumen-item .pr-monto.tr { color: var(--azul-claro); }
+  .pago-resumen-item .pr-monto.te { color: var(--naranja); }
+
+  .pago-resumen-item .pr-lbl {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--gris);
+    margin-top: 2px;
+  }
+
+  /* GASTOS */
+  .gasto-form {
+    background: white;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: var(--sombra);
+    margin-bottom: 14px;
+  }
+
+  .gasto-tipos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .gasto-tipo-btn {
+    padding: 14px 10px;
+    border: 2px solid #dce8f5;
+    border-radius: 12px;
+    background: var(--agua);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .gasto-tipo-btn .gt-icono { font-size: 22px; display: block; margin-bottom: 4px; }
+  .gasto-tipo-btn .gt-nombre {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--gris);
+  }
+
+  .gasto-tipo-btn.selected {
+    border-color: var(--morado);
+    background: #f3e8ff;
+  }
+  .gasto-tipo-btn.selected .gt-nombre { color: var(--morado); }
+
+  .ticket-section {
+    margin-bottom: 16px;
+  }
+
+  .ticket-label {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--gris);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .ticket-upload {
+    border: 2px dashed #c5dff5;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    background: var(--agua);
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .ticket-upload:active { background: #dbeeff; }
+  .ticket-upload input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+
+  .ticket-upload .tu-icono { font-size: 28px; margin-bottom: 6px; }
+  .ticket-upload .tu-texto { font-size: 13px; color: var(--gris); }
+  .ticket-preview {
+    width: 100%;
+    border-radius: 10px;
+    margin-top: 10px;
+    display: none;
+    max-height: 200px;
+    object-fit: cover;
+  }
+
+  .gasto-lista { margin-bottom: 14px; }
+
+  .gasto-item {
+    background: white;
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    box-shadow: 0 2px 8px rgba(10,77,140,0.08);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: slideIn 0.25s ease;
+  }
+
+  .gasto-icono-badge {
+    width: 38px; height: 38px;
+    background: #f3e8ff;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .gasto-info { flex: 1; }
+  .gasto-tipo-txt { font-weight: 600; font-size: 14px; }
+  .gasto-desc-txt { font-size: 12px; color: var(--gris); margin-top: 2px; }
+  .gasto-ticket-tag {
+    font-size: 10px;
+    background: #f3e8ff;
+    color: var(--morado);
+    padding: 2px 7px;
+    border-radius: 6px;
+    font-weight: 600;
+  }
+
+  .gasto-monto-txt {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    color: var(--rojo);
+    flex-shrink: 0;
+  }
+
+  .gasto-del {
+    width: 30px; height: 30px;
+    background: #fde8e0;
+    border: none;
+    border-radius: 7px;
+    color: var(--rojo);
+    font-size: 14px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .gastos-resumen {
+    background: #fde8e0;
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .gastos-resumen-label {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--rojo);
+  }
+
+  .gastos-resumen-monto {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: var(--rojo);
+  }
+
+  .btn-enviar {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, #00963f, #00c25a);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 6px 20px rgba(0,150,63,0.3);
+  }
+
+  .btn-enviar.visible { display: flex; }
+  .btn-enviar:active { opacity: 0.85; transform: scale(0.98); }
+
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(10,30,50,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .overlay.visible { display: flex; }
+
+  .modal {
+    background: white;
+    border-radius: 20px;
+    padding: 24px;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+  }
+
+  .modal-icon {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px;
+  }
+
+  .modal-icon.confirm { background: #d4f5e9; }
+  .modal-icon.success { background: #d4f5e9; }
+  .modal-icon.error { background: #fde8e0; }
+
+  .modal h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    letter-spacing: 2px;
+    color: var(--texto);
+    margin-bottom: 8px;
+  }
+
+  .modal p {
+    font-size: 14px;
+    color: var(--gris);
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+
+  .modal-efectivo {
+    background: #d4f5e9;
+    border-radius: 12px;
+    padding: 14px;
+    margin: 12px 0 16px;
+  }
+
+  .modal-efectivo .lbl { font-size: 12px; color: #007a52; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+  .modal-efectivo .monto { font-family: 'Bebas Neue', sans-serif; font-size: 40px; color: #007a52; line-height: 1; }
+
+  .modal-gastos {
+    background: #fde8e0;
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-gastos .lbl { font-size: 12px; color: var(--rojo); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+  .modal-gastos .monto { font-family: 'Bebas Neue', sans-serif; font-size: 24px; color: var(--rojo); }
+
+  .modal-btns { display: flex; gap: 10px; }
+
+  .modal-btn {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 17px;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+  }
+
+  .modal-btn.cancel { background: var(--agua); color: var(--gris); }
+  .modal-btn.ok { background: linear-gradient(135deg, #00963f, #00c25a); color: white; }
+  .modal-btn.close { background: var(--azul-claro); color: white; }
+
+  .spinner {
+    width: 44px; height: 44px;
+    border: 4px solid #dce8f5;
+    border-top-color: var(--azul-claro);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .section-titulo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 1.5px;
+    color: var(--gris);
+    margin-bottom: 12px;
+  }
+
+  /* BLOQUE GASTOS (integrado en flujo) */
+  .gastos-bloque {
+    margin-bottom: 14px;
+  }
+
+  .btn-toggle-gastos {
+    width: 100%;
+    padding: 16px 18px;
+    background: white;
+    border: 2px dashed var(--morado);
+    border-radius: 14px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 15px;
+    letter-spacing: 1.5px;
+    color: var(--morado);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s;
+  }
+
+  .btn-toggle-gastos:active {
+    background: #f5eeff;
+  }
+
+  .btn-toggle-gastos.abierto {
+    border-style: solid;
+    background: linear-gradient(135deg, #7c3aed, #9f5cf7);
+    color: white;
+    margin-bottom: 12px;
+  }
 </style>
 </head>
 <body>
 
-<div id="login-screen" style="position:fixed;inset:0;background:linear-gradient(160deg,#0a4d8c 0%,#1a7fd4 60%,#00c2ff 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;padding:24px;">
+<!-- LOGIN -->
+<div id="login-screen" style="
+  position:fixed;inset:0;
+  background:linear-gradient(160deg,#0a4d8c 0%,#1a7fd4 60%,#00c2ff 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:9999;padding:24px;">
   <div style="text-align:center;margin-bottom:40px;">
     <div style="width:80px;height:80px;background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.3);border-radius:22px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:38px;color:white;margin:0 auto 16px;">AQ</div>
     <div style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:white;letter-spacing:4px;line-height:1;">AQUINA</div>
@@ -178,7 +1018,9 @@
   </div>
   <div style="background:white;border-radius:24px;padding:28px 24px;width:100%;max-width:360px;">
     <div style="font-size:13px;color:#6b7c93;text-align:center;margin-bottom:16px;font-weight:600;text-transform:uppercase;letter-spacing:1px;">Código de acceso</div>
-    <input id="login-input" type="password" maxlength="10" placeholder="••••" style="width:100%;padding:18px;text-align:center;font-size:32px;letter-spacing:12px;border:2px solid #dce8f5;border-radius:14px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:14px;background:#f0f7ff;" onkeydown="if(event.key==='Enter')verificarCodigo()" />
+    <input id="login-input" type="password" maxlength="10" placeholder="••••"
+      style="width:100%;padding:18px;text-align:center;font-size:32px;letter-spacing:12px;border:2px solid #dce8f5;border-radius:14px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:14px;background:#f0f7ff;"
+      onkeydown="if(event.key==='Enter')verificarCodigo()" />
     <button onclick="verificarCodigo()" style="width:100%;padding:18px;background:linear-gradient(135deg,#0a4d8c,#1a7fd4);color:white;border:none;border-radius:14px;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;cursor:pointer;">ENTRAR</button>
     <div id="login-error" style="color:#e53935;font-size:13px;margin-top:12px;text-align:center;display:none;">Código incorrecto. Intenta de nuevo.</div>
   </div>
@@ -186,114 +1028,218 @@
 
 <header>
   <div class="logo-mark">AQ</div>
-  <div class="header-text"><h1>AQUINA</h1><p>Registro del día · v4.0</p></div>
+  <div class="header-text">
+    <h1>AQUINA</h1>
+    <p>Registro de entregas del día</p>
+  </div>
   <div class="fecha-badge">
     <div class="dia" id="hdr-dia">--</div>
     <div class="mes" id="hdr-mes">---</div>
   </div>
 </header>
 
-<div class="tabs">
-  <button class="tab-btn active" onclick="cambiarTab('ventas')">📦 Ventas</button>
-  <button class="tab-btn" onclick="cambiarTab('gastos')">🧾 Gastos <span id="gastos-badge" style="display:none;background:var(--morado);color:white;font-size:11px;padding:1px 6px;border-radius:10px;margin-left:4px;font-family:'DM Sans',sans-serif;font-weight:700;">0</span></button>
-</div>
-
-<div id="tab-ventas" class="tab-content active">
+<!-- FLUJO ÚNICO: VENTAS → GASTOS (opcional) → ENVIAR -->
 <div class="container">
-  <div class="card">
-    <div class="section-label">👤 Buscar cliente</div>
+
+  <div class="search-section">
+    <div class="search-label">👤 Buscar cliente</div>
     <div class="search-wrap">
       <span class="search-icon">🔍</span>
       <input type="text" id="buscar-cliente" placeholder="Nombre o colonia..." autocomplete="off" />
       <div id="lista-sugerencias"></div>
     </div>
   </div>
-  <div class="card" id="cantidades-card" style="display:none;">
+
+  <div class="cantidades-card" id="cantidades-card">
     <div class="cliente-seleccionado">
       <div class="cliente-avatar" id="av-inicial">--</div>
-      <div class="cliente-info"><div class="nombre" id="av-nombre">—</div><div class="colonia" id="av-colonia">—</div></div>
-    </div>
-    <div class="tipos-grid">
-      <div class="tipo-item"><span class="tipo-label alcalina">💧 Alcalina</span><div class="contador"><button class="cnt-btn" onclick="cambiar('alc',-1)">−</button><span class="cnt-val" id="val-alc">0</span><button class="cnt-btn" onclick="cambiar('alc',1)">+</button></div></div>
-      <div class="tipo-item"><span class="tipo-label purificada">🫧 Purificada</span><div class="contador"><button class="cnt-btn" onclick="cambiar('pur',-1)">−</button><span class="cnt-val" id="val-pur">0</span><button class="cnt-btn" onclick="cambiar('pur',1)">+</button></div></div>
-      <div class="tipo-item"><span class="tipo-label nuevo">🆕 Nuevo G.</span><div class="contador"><button class="cnt-btn" onclick="cambiar('nue',-1)">−</button><span class="cnt-val" id="val-nue">0</span><button class="cnt-btn" onclick="cambiar('nue',1)">+</button></div></div>
-    </div>
-    <div style="margin-bottom:16px;">
-      <div class="section-label">💳 Método de pago</div>
-      <div class="pago-opciones">
-        <div class="pago-btn" id="btn-efectivo" onclick="seleccionarPago('efectivo')"><span class="pago-icono">💵</span><span class="pago-nombre">Efectivo</span></div>
-        <div class="pago-btn" id="btn-transferencia" onclick="seleccionarPago('transferencia')"><span class="pago-icono">📲</span><span class="pago-nombre">Transfer.</span></div>
-        <div class="pago-btn" id="btn-terminal" onclick="seleccionarPago('terminal')"><span class="pago-icono">💳</span><span class="pago-nombre">Terminal</span></div>
+      <div class="cliente-info">
+        <div class="nombre" id="av-nombre">—</div>
+        <div class="colonia" id="av-colonia">—</div>
       </div>
     </div>
+
+    <div class="tipos-grid">
+      <div class="tipo-item">
+        <span class="tipo-label alcalina">💧 Alcalina</span>
+        <div class="contador">
+          <button class="cnt-btn" onclick="cambiar('alc', -1)">−</button>
+          <span class="cnt-val" id="val-alc">0</span>
+          <button class="cnt-btn" onclick="cambiar('alc', 1)">+</button>
+        </div>
+      </div>
+      <div class="tipo-item">
+        <span class="tipo-label purificada">🫧 Purificada</span>
+        <div class="contador">
+          <button class="cnt-btn" onclick="cambiar('pur', -1)">−</button>
+          <span class="cnt-val" id="val-pur">0</span>
+          <button class="cnt-btn" onclick="cambiar('pur', 1)">+</button>
+        </div>
+      </div>
+      <div class="tipo-item">
+        <span class="tipo-label nuevo">🆕 Nuevo G.</span>
+        <div class="contador">
+          <button class="cnt-btn" onclick="cambiar('nue', -1)">−</button>
+          <span class="cnt-val" id="val-nue">0</span>
+          <button class="cnt-btn" onclick="cambiar('nue', 1)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="pago-section">
+      <div class="pago-label">💳 Método de pago</div>
+      <div class="pago-opciones">
+        <div class="pago-btn" id="btn-efectivo" onclick="seleccionarPago('efectivo')">
+          <span class="pago-icono">💵</span>
+          <span class="pago-nombre">Efectivo</span>
+        </div>
+        <div class="pago-btn" id="btn-transferencia" onclick="seleccionarPago('transferencia')">
+          <span class="pago-icono">📲</span>
+          <span class="pago-nombre">Transfer.</span>
+        </div>
+        <div class="pago-btn" id="btn-terminal" onclick="seleccionarPago('terminal')">
+          <span class="pago-icono">💳</span>
+          <span class="pago-nombre">Terminal</span>
+        </div>
+      </div>
+    </div>
+
     <div class="monto-section" id="monto-section">
-      <div class="section-label">💰 Monto cobrado</div>
-      <div class="monto-wrap"><span class="monto-prefix">$</span><input type="number" id="monto-input" placeholder="0.00" min="0" step="0.50" oninput="validarFormulario()" /></div>
+      <div class="monto-label">💰 Monto cobrado</div>
+      <div class="monto-wrap">
+        <span class="monto-prefix">$</span>
+        <input type="number" id="monto-input" placeholder="0.00" min="0" step="0.50" oninput="validarFormulario()" />
+      </div>
     </div>
-    <div style="margin-bottom:16px;">
-      <div class="section-label" style="display:flex;align-items:center;gap:6px;">💬 Comentario <span class="opcional-badge">opcional</span></div>
-      <textarea id="comentario-input" placeholder="Ej: cliente pidió cambio de garrafón..."></textarea>
+
+    <div class="comentario-section">
+      <div class="comentario-label">
+        💬 Comentario <span class="opcional-badge">opcional</span>
+      </div>
+      <textarea id="comentario-input" placeholder="Ej: cliente pidió cambio de garrafón, pagó la semana pasada..."></textarea>
     </div>
-    <button class="btn-primary" id="btn-agregar" onclick="agregarPedido()" disabled>＋ AGREGAR A LA LISTA</button>
+
+    <button class="btn-agregar" id="btn-agregar" onclick="agregarPedido()" disabled>
+      ＋ AGREGAR A LA LISTA
+    </button>
   </div>
-  <div id="pedidos-section" style="display:none;margin-bottom:14px;">
-    <div class="list-header"><div class="list-titulo">📦 Entregas del día</div><span class="list-count" id="pedidos-count">0</span></div>
+
+  <div class="pedidos-section" id="pedidos-section" style="display:none">
+    <div class="pedidos-header">
+      <div class="pedidos-titulo">📦 Entregas del día</div>
+      <span class="pedidos-count" id="pedidos-count">0</span>
+    </div>
     <div id="lista-pedidos"></div>
   </div>
-  <div class="card" id="resumen-card" style="display:none;">
-    <div class="section-label">TOTALES DE GARRAFONES</div>
+
+  <div class="resumen-card" id="resumen-card">
+    <div class="resumen-titulo">TOTALES DE GARRAFONES</div>
     <div class="resumen-grid">
-      <div class="resumen-stat"><div class="num alc" id="tot-alc">0</div><div class="lbl">Alcalina</div></div>
-      <div class="resumen-stat"><div class="num pur" id="tot-pur">0</div><div class="lbl">Purificada</div></div>
-      <div class="resumen-stat"><div class="num nue" id="tot-nue">0</div><div class="lbl">Nuevo G.</div></div>
+      <div class="resumen-stat">
+        <div class="num alc" id="tot-alc">0</div>
+        <div class="lbl">Alcalina</div>
+      </div>
+      <div class="resumen-stat">
+        <div class="num pur" id="tot-pur">0</div>
+        <div class="lbl">Purificada</div>
+      </div>
+      <div class="resumen-stat">
+        <div class="num nue" id="tot-nue">0</div>
+        <div class="lbl">Nuevo G.</div>
+      </div>
     </div>
-    <div class="section-label" style="margin-top:14px;">COBRO DEL DÍA</div>
-    <div class="efectivo-box"><div class="efectivo-label">💵 Efectivo a entregar</div><div class="efectivo-monto" id="tot-efectivo-grande">$0</div></div>
+    <div class="resumen-titulo" style="margin-top:14px;">COBRO DEL DÍA</div>
+    <div class="efectivo-box">
+      <div class="efectivo-label">💵 Efectivo a entregar</div>
+      <div class="efectivo-monto" id="tot-efectivo-grande">$0</div>
+    </div>
     <div class="pagos-desglose">
-      <div class="pago-res"><div class="pr-n ef" id="res-ef">$0</div><div class="pr-l">Efectivo</div></div>
-      <div class="pago-res"><div class="pr-n tr" id="res-tr">$0</div><div class="pr-l">Transfer.</div></div>
-      <div class="pago-res"><div class="pr-n te" id="res-te">$0</div><div class="pr-l">Terminal</div></div>
+      <div class="pago-resumen-item">
+        <div class="pr-monto ef" id="res-ef">$0</div>
+        <div class="pr-lbl">Efectivo</div>
+      </div>
+      <div class="pago-resumen-item">
+        <div class="pr-monto tr" id="res-tr">$0</div>
+        <div class="pr-lbl">Transfer.</div>
+      </div>
+      <div class="pago-resumen-item">
+        <div class="pr-monto te" id="res-te">$0</div>
+        <div class="pr-lbl">Terminal</div>
+      </div>
     </div>
   </div>
-</div>
-</div>
 
-<div id="tab-gastos" class="tab-content">
-<div class="container">
-  <div class="card">
-    <div class="section-label">TIPO DE GASTO</div>
-    <div class="gasto-tipos">
-      <div class="gt-btn" id="gt-material" onclick="seleccionarTipoGasto('material')"><span class="gt-icono">🧰</span><span class="gt-nombre">Material</span></div>
-      <div class="gt-btn" id="gt-gasolina" onclick="seleccionarTipoGasto('gasolina')"><span class="gt-icono">⛽</span><span class="gt-nombre">Gasolina</span></div>
-      <div class="gt-btn" id="gt-servicio" onclick="seleccionarTipoGasto('servicio')"><span class="gt-icono">🔧</span><span class="gt-nombre">Pago servicio</span></div>
-      <div class="gt-btn" id="gt-otro" onclick="seleccionarTipoGasto('otro')"><span class="gt-icono">📋</span><span class="gt-nombre">Otro</span></div>
-    </div>
-    <div class="section-label">💰 Monto del gasto</div>
-    <div class="monto-wrap" style="margin-bottom:16px;"><span class="monto-prefix rojo">$</span><input type="number" id="gasto-monto" placeholder="0.00" min="0" step="0.50" /></div>
-    <div style="margin-bottom:16px;">
-      <div class="section-label" style="display:flex;align-items:center;gap:6px;">📝 Descripción <span class="opcional-badge">opcional</span></div>
-      <textarea id="gasto-desc" placeholder="Ej: 20 litros magna..."></textarea>
-    </div>
-    <div class="ticket-area">
-      <input type="file" accept="image/*" capture="environment" id="ticket-file" onchange="previsualizarTicket(this)" />
-      <div style="font-size:28px;">📷</div>
-      <div style="font-size:13px;color:var(--gris);margin-top:6px;">Foto del ticket <span class="opcional-badge">opcional</span></div>
-      <img id="ticket-preview" />
-    </div>
-    <button class="btn-primary btn-purple" onclick="agregarGasto()">＋ AGREGAR GASTO</button>
-  </div>
-  <div id="gastos-section" style="display:none;margin-bottom:14px;">
-    <div class="list-header"><div class="list-titulo">🧾 Gastos del día</div><span class="list-count" style="background:var(--morado);" id="gastos-count">0</span></div>
-    <div id="lista-gastos"></div>
-  </div>
-  <div class="card" id="gastos-resumen-card" style="display:none;">
-    <div class="gastos-box"><div class="gastos-label">💸 Total gastos</div><div class="gastos-monto" id="tot-gastos">$0</div></div>
-    <div class="efectivo-box"><div class="efectivo-label">💵 Efectivo a entregar</div><div class="efectivo-monto" id="tot-efectivo-gastos">$0</div></div>
-  </div>
-</div>
-</div>
+  <!-- SECCIÓN GASTOS (opcional, solo visible cuando hay pedidos) -->
+  <div class="gastos-bloque" id="gastos-bloque" style="display:none;">
+    <button class="btn-toggle-gastos" id="btn-toggle-gastos" onclick="toggleGastos()">
+      <span id="toggle-gastos-txt">🧾 ¿HUBO GASTOS HOY? <span style="opacity:.7;font-size:13px;">(opcional)</span></span>
+      <span id="toggle-gastos-flecha">▼</span>
+    </button>
 
-<button class="btn-enviar-fijo" id="btn-enviar" onclick="confirmarEnvio()">✅ ENVIAR REPORTE DEL DÍA</button>
+    <div class="gasto-form" id="gasto-form-contenido" style="display:none;">
+      <div class="section-titulo">TIPO DE GASTO</div>
+      <div class="gasto-tipos">
+        <div class="gasto-tipo-btn" id="gt-material" onclick="seleccionarTipoGasto('material')">
+          <span class="gt-icono">🧰</span>
+          <span class="gt-nombre">Material</span>
+        </div>
+        <div class="gasto-tipo-btn" id="gt-gasolina" onclick="seleccionarTipoGasto('gasolina')">
+          <span class="gt-icono">⛽</span>
+          <span class="gt-nombre">Gasolina</span>
+        </div>
+        <div class="gasto-tipo-btn" id="gt-servicio" onclick="seleccionarTipoGasto('servicio')">
+          <span class="gt-icono">🔧</span>
+          <span class="gt-nombre">Pago servicio</span>
+        </div>
+        <div class="gasto-tipo-btn" id="gt-otro" onclick="seleccionarTipoGasto('otro')">
+          <span class="gt-icono">📋</span>
+          <span class="gt-nombre">Otro</span>
+        </div>
+      </div>
+
+      <div class="monto-label">💰 Monto del gasto</div>
+      <div class="monto-wrap" style="margin-bottom:16px;">
+        <span class="monto-prefix" style="color:var(--rojo);">$</span>
+        <input type="number" id="gasto-monto" placeholder="0.00" min="0" step="0.50" style="flex:1;padding:14px;border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:22px;font-weight:600;color:var(--texto);outline:none;width:100%;" />
+      </div>
+
+      <div class="comentario-section">
+        <div class="comentario-label">
+          📝 Descripción <span class="opcional-badge">opcional</span>
+        </div>
+        <textarea id="gasto-desc" placeholder="Ej: 20 litros magna, cambio de aceite..." style="width:100%;padding:12px 14px;border:2px solid #dce8f5;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--texto);background:var(--agua);outline:none;resize:none;height:68px;"></textarea>
+      </div>
+
+      <div class="ticket-section">
+        <div class="ticket-label">
+          📷 Foto del ticket <span class="opcional-badge">opcional</span>
+        </div>
+        <div class="ticket-upload" id="ticket-upload-area">
+          <input type="file" accept="image/*" capture="environment" id="ticket-file" onchange="previsualizarTicket(this)" />
+          <div class="tu-icono">📎</div>
+          <div class="tu-texto">Toca para tomar foto o seleccionar</div>
+        </div>
+        <img id="ticket-preview" class="ticket-preview" />
+      </div>
+
+      <button onclick="agregarGasto()" style="width:100%;padding:16px;background:linear-gradient(135deg,#7c3aed,#9f5cf7);color:white;border:none;border-radius:14px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;cursor:pointer;">
+        ＋ AGREGAR GASTO
+      </button>
+    </div>
+
+    <div id="gastos-lista" class="gasto-lista" style="display:none"></div>
+
+    <div id="gastos-resumen-box" class="gastos-resumen" style="display:none">
+      <div class="gastos-resumen-label">💸 Total gastos del día</div>
+      <div class="gastos-resumen-monto" id="tot-gastos">$0</div>
+    </div>
+  </div>
+
+  <button class="btn-enviar" id="btn-enviar" onclick="confirmarEnvio()">
+    ✅ ENVIAR REPORTE DEL DÍA
+  </button>
+
+</div>
 
 <div class="overlay" id="overlay">
   <div class="modal" id="modal-content"></div>
@@ -301,38 +1247,12 @@
 
 <script>
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyT6pGkFC8WaeHsBtcmYw-hbyNYeq7eYRWyep9Gto5Xj0VrIGXbKIXIWA4veJxneKs/exec";
+const DRIVE_FOLDER_ID = "1WdmRpXfswH27R9dEzDJEdUug3KKuha5U";
 
 let CLIENTES = [];
-let clienteActual = null;
-let cantidades = {alc:0,pur:0,nue:0};
-let pagoSeleccionado = null;
-let pedidos = [];
-let gastos = [];
-let tipoGastoSeleccionado = null;
-let ticketBase64 = null;
-
-// ── JSONP universal (GET y POST-via-GET) ───────────────
-function jsonp(url, cb) {
-  const id = 'cb_' + Math.random().toString(36).slice(2);
-  window[id] = function(data) {
-    cb(data);
-    delete window[id];
-    const s = document.getElementById(id);
-    if (s) s.remove();
-  };
-  const s = document.createElement('script');
-  s.id = id;
-  s.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + id;
-  s.onerror = function() {
-    cb({ok:false, error:'network'});
-    delete window[id];
-    s.remove();
-  };
-  document.body.appendChild(s);
-}
 
 // ── Login ──────────────────────────────────────────────
-function verificarCodigo() {
+async function verificarCodigo() {
   const codigo = document.getElementById('login-input').value;
   if (!codigo) return;
   jsonp(APPS_SCRIPT_URL + '?action=login&codigo=' + encodeURIComponent(codigo), function(data) {
@@ -349,25 +1269,64 @@ function verificarCodigo() {
   });
 }
 
-function cargarClientes(cb) {
+function cargarClientes(callback) {
   jsonp(APPS_SCRIPT_URL + '?action=clientes', function(data) {
     CLIENTES = data;
-    if (cb) cb();
+    if (callback) callback();
   });
 }
 
-// ── Tabs ───────────────────────────────────────────────
-function cambiarTab(tab) {
-  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active',(i===0&&tab==='ventas')||(i===1&&tab==='gastos')));
-  document.getElementById('tab-ventas').classList.toggle('active', tab==='ventas');
-  document.getElementById('tab-gastos').classList.toggle('active', tab==='gastos');
+function jsonp(url, callback) {
+  const name = 'cb_' + Math.random().toString(36).slice(2);
+  window[name] = function(data) {
+    callback(data);
+    delete window[name];
+    const s = document.getElementById(name);
+    if (s) s.remove();
+  };
+  const script = document.createElement('script');
+  script.id = name;
+  script.src = url + '&callback=' + name;
+  document.body.appendChild(script);
 }
+
+// ── Toggle sección gastos ──────────────────────────────
+function toggleGastos() {
+  const contenido = document.getElementById('gasto-form-contenido');
+  const btn = document.getElementById('btn-toggle-gastos');
+  const flecha = document.getElementById('toggle-gastos-flecha');
+  const txt = document.getElementById('toggle-gastos-txt');
+  const abierto = contenido.style.display === 'block';
+
+  if (abierto) {
+    contenido.style.display = 'none';
+    btn.classList.remove('abierto');
+    flecha.textContent = '▼';
+    txt.innerHTML = '🧾 ¿HUBO GASTOS HOY? <span style="opacity:.7;font-size:13px;">(opcional)</span>';
+  } else {
+    contenido.style.display = 'block';
+    btn.classList.add('abierto');
+    flecha.textContent = '▲';
+    txt.innerHTML = '🧾 REGISTRAR GASTO';
+  }
+}
+
+// ── Estado ventas ──────────────────────────────────────
+let clienteActual = null;
+let cantidades = { alc: 0, pur: 0, nue: 0 };
+let pagoSeleccionado = null;
+let pedidos = [];
+
+// ── Estado gastos ──────────────────────────────────────
+let tipoGastoSeleccionado = null;
+let gastos = [];
+let ticketBase64 = null;
 
 // ── Fecha ──────────────────────────────────────────────
 const ahora = new Date();
-const MESES = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+const meses = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
 document.getElementById('hdr-dia').textContent = ahora.getDate();
-document.getElementById('hdr-mes').textContent = MESES[ahora.getMonth()];
+document.getElementById('hdr-mes').textContent = meses[ahora.getMonth()];
 
 // ── Buscador ───────────────────────────────────────────
 const inputBuscar = document.getElementById('buscar-cliente');
@@ -377,31 +1336,44 @@ let idxActivo = -1;
 inputBuscar.addEventListener('input', () => {
   const q = inputBuscar.value.trim().toLowerCase();
   idxActivo = -1;
-  if (!q) { listaSug.classList.remove('visible'); return; }
-  const res = CLIENTES.filter(c => c.n.toLowerCase().includes(q) || c.c.toLowerCase().includes(q)).slice(0,8);
-  if (!res.length) { listaSug.classList.remove('visible'); return; }
-  listaSug.innerHTML = res.map(c => `
+  if (q.length < 1) { listaSug.classList.remove('visible'); return; }
+  const resultados = CLIENTES.filter(c =>
+    c.n.toLowerCase().includes(q) || c.c.toLowerCase().includes(q)
+  ).slice(0, 8);
+  if (!resultados.length) { listaSug.classList.remove('visible'); return; }
+  listaSug.innerHTML = resultados.map(c => `
     <div class="sugerencia-item" onclick="seleccionarCliente(${CLIENTES.indexOf(c)})">
-      <div class="nombre">${hl(c.n,q)}</div>
-      ${c.c?`<div class="colonia">${hl(c.c,q)}</div>`:''}
-    </div>`).join('');
+      <div class="nombre">${resaltarTexto(c.n, q)}</div>
+      ${c.c ? `<div class="colonia">${resaltarTexto(c.c, q)}</div>` : ''}
+    </div>
+  `).join('');
   listaSug.classList.add('visible');
 });
 
-inputBuscar.addEventListener('keydown', e => {
+inputBuscar.addEventListener('keydown', (e) => {
   const items = listaSug.querySelectorAll('.sugerencia-item');
-  if (e.key==='ArrowDown'){idxActivo=Math.min(idxActivo+1,items.length-1);markActive(items);e.preventDefault();}
-  if (e.key==='ArrowUp'){idxActivo=Math.max(idxActivo-1,0);markActive(items);e.preventDefault();}
-  if (e.key==='Enter'&&idxActivo>=0) items[idxActivo].click();
-  if (e.key==='Escape') listaSug.classList.remove('visible');
+  if (e.key === 'ArrowDown') { idxActivo = Math.min(idxActivo+1, items.length-1); marcarActivo(items); e.preventDefault(); }
+  if (e.key === 'ArrowUp') { idxActivo = Math.max(idxActivo-1, 0); marcarActivo(items); e.preventDefault(); }
+  if (e.key === 'Enter' && idxActivo >= 0) items[idxActivo].click();
+  if (e.key === 'Escape') listaSug.classList.remove('visible');
 });
-document.addEventListener('click', e => { if(!e.target.closest('.search-wrap')) listaSug.classList.remove('visible'); });
-function markActive(items){items.forEach((el,i)=>el.classList.toggle('activo',i===idxActivo));}
-function hl(t,q){return t.replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`,'gi'),'<mark>$1</mark>');}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search-wrap')) listaSug.classList.remove('visible');
+});
+
+function marcarActivo(items) {
+  items.forEach((el, i) => el.classList.toggle('activo', i === idxActivo));
+}
+
+function resaltarTexto(texto, q) {
+  const re = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  return texto.replace(re, '<mark>$1</mark>');
+}
 
 function seleccionarCliente(idx) {
   clienteActual = CLIENTES[idx];
-  cantidades = {alc:0,pur:0,nue:0};
+  cantidades = { alc: 0, pur: 0, nue: 0 };
   pagoSeleccionado = null;
   actualizarContadores();
   limpiarPagoUI();
@@ -411,253 +1383,369 @@ function seleccionarCliente(idx) {
   document.getElementById('monto-input').value = '';
   document.getElementById('comentario-input').value = '';
   document.getElementById('monto-section').classList.remove('visible');
-  document.getElementById('cantidades-card').style.display = 'block';
+  document.getElementById('cantidades-card').classList.add('visible');
   document.getElementById('btn-agregar').disabled = true;
   inputBuscar.value = clienteActual.n;
   listaSug.classList.remove('visible');
   inputBuscar.blur();
 }
 
-function cambiar(tipo,delta){cantidades[tipo]=Math.max(0,cantidades[tipo]+delta);actualizarContadores();validarFormulario();}
-function actualizarContadores(){document.getElementById('val-alc').textContent=cantidades.alc;document.getElementById('val-pur').textContent=cantidades.pur;document.getElementById('val-nue').textContent=cantidades.nue;}
+function cambiar(tipo, delta) {
+  cantidades[tipo] = Math.max(0, cantidades[tipo] + delta);
+  actualizarContadores();
+  validarFormulario();
+}
 
-function seleccionarPago(tipo){
-  pagoSeleccionado=tipo;limpiarPagoUI();
-  document.getElementById('btn-'+tipo).classList.add('selected-'+tipo);
+function actualizarContadores() {
+  document.getElementById('val-alc').textContent = cantidades.alc;
+  document.getElementById('val-pur').textContent = cantidades.pur;
+  document.getElementById('val-nue').textContent = cantidades.nue;
+}
+
+function seleccionarPago(tipo) {
+  pagoSeleccionado = tipo;
+  limpiarPagoUI();
+  document.getElementById('btn-' + tipo).classList.add('selected-' + tipo);
   document.getElementById('monto-section').classList.add('visible');
-  document.getElementById('monto-input').value='';
+  document.getElementById('monto-input').value = '';
   document.getElementById('monto-input').focus();
   validarFormulario();
 }
-function limpiarPagoUI(){['efectivo','transferencia','terminal'].forEach(t=>document.getElementById('btn-'+t).className='pago-btn');}
-function validarFormulario(){
-  const tot=cantidades.alc+cantidades.pur+cantidades.nue;
-  const m=parseFloat(document.getElementById('monto-input').value);
-  document.getElementById('btn-agregar').disabled=!(tot>0&&pagoSeleccionado&&!isNaN(m)&&m>=0);
+
+function limpiarPagoUI() {
+  ['efectivo','transferencia','terminal'].forEach(t => {
+    document.getElementById('btn-' + t).className = 'pago-btn';
+  });
 }
 
-function agregarPedido(){
-  if(!clienteActual||!pagoSeleccionado) return;
-  if(cantidades.alc+cantidades.pur+cantidades.nue===0) return;
-  const monto=parseFloat(document.getElementById('monto-input').value)||0;
-  const comentario=document.getElementById('comentario-input').value.trim();
-  const idx=pedidos.findIndex(p=>p.nombre===clienteActual.n);
-  if(idx>=0){
-    pedidos[idx].alc+=cantidades.alc;pedidos[idx].pur+=cantidades.pur;pedidos[idx].nue+=cantidades.nue;
-    pedidos[idx].monto+=monto;pedidos[idx].pago=pagoSeleccionado;
-    if(comentario) pedidos[idx].comentario=comentario;
+function validarFormulario() {
+  const totalGarrafones = cantidades.alc + cantidades.pur + cantidades.nue;
+  const monto = parseFloat(document.getElementById('monto-input').value);
+  const ok = totalGarrafones > 0 && pagoSeleccionado !== null && !isNaN(monto) && monto >= 0;
+  document.getElementById('btn-agregar').disabled = !ok;
+}
+
+function agregarPedido() {
+  if (!clienteActual || !pagoSeleccionado) return;
+  const total = cantidades.alc + cantidades.pur + cantidades.nue;
+  if (total === 0) return;
+  const monto = parseFloat(document.getElementById('monto-input').value) || 0;
+  const comentario = document.getElementById('comentario-input').value.trim();
+
+  const existente = pedidos.findIndex(p => p.nombre === clienteActual.n);
+  if (existente >= 0) {
+    pedidos[existente].alc += cantidades.alc;
+    pedidos[existente].pur += cantidades.pur;
+    pedidos[existente].nue += cantidades.nue;
+    pedidos[existente].monto += monto;
+    pedidos[existente].pago = pagoSeleccionado;
+    if (comentario) pedidos[existente].comentario = comentario;
   } else {
-    pedidos.push({nombre:clienteActual.n,colonia:clienteActual.c,alc:cantidades.alc,pur:cantidades.pur,nue:cantidades.nue,pago:pagoSeleccionado,monto,comentario});
+    pedidos.push({
+      nombre: clienteActual.n,
+      colonia: clienteActual.c,
+      alc: cantidades.alc,
+      pur: cantidades.pur,
+      nue: cantidades.nue,
+      pago: pagoSeleccionado,
+      monto,
+      comentario
+    });
   }
-  renderTodo();resetVentaForm();
+  renderPedidos();
+  resetForm();
 }
 
-function resetVentaForm(){
-  clienteActual=null;cantidades={alc:0,pur:0,nue:0};pagoSeleccionado=null;
-  actualizarContadores();limpiarPagoUI();
-  inputBuscar.value='';
-  document.getElementById('monto-input').value='';
-  document.getElementById('comentario-input').value='';
+function resetForm() {
+  clienteActual = null;
+  cantidades = { alc: 0, pur: 0, nue: 0 };
+  pagoSeleccionado = null;
+  actualizarContadores();
+  limpiarPagoUI();
+  inputBuscar.value = '';
+  document.getElementById('monto-input').value = '';
+  document.getElementById('comentario-input').value = '';
   document.getElementById('monto-section').classList.remove('visible');
-  document.getElementById('cantidades-card').style.display='none';
-  document.getElementById('btn-agregar').disabled=true;
+  document.getElementById('cantidades-card').classList.remove('visible');
+  document.getElementById('btn-agregar').disabled = true;
   inputBuscar.focus();
 }
 
-function eliminarPedido(i){pedidos.splice(i,1);renderTodo();}
-
-const ICONOS_GASTO={material:'🧰',gasolina:'⛽',servicio:'🔧',otro:'📋'};
-const LABELS_GASTO={material:'Material',gasolina:'Gasolina',servicio:'Pago servicio',otro:'Otro'};
-const ICONOS_PAGO={efectivo:'💵',transferencia:'📲',terminal:'💳'};
-const LABELS_PAGO={efectivo:'Efectivo',transferencia:'Transfer.',terminal:'Terminal'};
-
-function seleccionarTipoGasto(tipo){
-  tipoGastoSeleccionado=tipo;
-  ['material','gasolina','servicio','otro'].forEach(t=>document.getElementById('gt-'+t).classList.toggle('selected',t===tipo));
+function eliminarPedido(idx) {
+  pedidos.splice(idx, 1);
+  renderPedidos();
 }
 
-function previsualizarTicket(input){
-  if(!input.files||!input.files[0]) return;
-  const reader=new FileReader();
-  reader.onload=e=>{
-    ticketBase64=e.target.result.split(',')[1];
-    const prev=document.getElementById('ticket-preview');
-    prev.src=e.target.result;prev.style.display='block';
-  };
-  reader.readAsDataURL(input.files[0]);
-}
+const iconoPago = { efectivo: '💵', transferencia: '📲', terminal: '💳' };
+const labelPago = { efectivo: 'Efectivo', transferencia: 'Transfer.', terminal: 'Terminal' };
 
-function agregarGasto(){
-  if(!tipoGastoSeleccionado){alert('Selecciona el tipo de gasto');return;}
-  const monto=parseFloat(document.getElementById('gasto-monto').value);
-  if(!monto||monto<=0){alert('Ingresa el monto del gasto');return;}
-  const desc=document.getElementById('gasto-desc').value.trim();
-  gastos.push({tipo:tipoGastoSeleccionado,monto,desc,ticket:ticketBase64});
-  tipoGastoSeleccionado=null;ticketBase64=null;
-  ['material','gasolina','servicio','otro'].forEach(t=>document.getElementById('gt-'+t).classList.remove('selected'));
-  document.getElementById('gasto-monto').value='';
-  document.getElementById('gasto-desc').value='';
-  document.getElementById('ticket-file').value='';
-  document.getElementById('ticket-preview').style.display='none';
-  renderTodo();
-}
+function renderPedidos() {
+  const lista = document.getElementById('lista-pedidos');
+  const seccion = document.getElementById('pedidos-section');
+  const resumen = document.getElementById('resumen-card');
+  const btnEnviar = document.getElementById('btn-enviar');
+  const bloqueGastos = document.getElementById('gastos-bloque');
 
-function eliminarGasto(i){gastos.splice(i,1);renderTodo();}
+  if (pedidos.length === 0) {
+    seccion.style.display = 'none';
+    resumen.classList.remove('visible');
+    btnEnviar.classList.remove('visible');
+    bloqueGastos.style.display = 'none';
+    return;
+  }
 
-function renderTodo(){
-  const totEf=pedidos.filter(p=>p.pago==='efectivo').reduce((s,p)=>s+p.monto,0);
-  const totTr=pedidos.filter(p=>p.pago==='transferencia').reduce((s,p)=>s+p.monto,0);
-  const totTe=pedidos.filter(p=>p.pago==='terminal').reduce((s,p)=>s+p.monto,0);
-  const totGastos=gastos.reduce((s,g)=>s+g.monto,0);
-  const efectivoFinal=totEf-totGastos;
+  seccion.style.display = 'block';
+  resumen.classList.add('visible');
+  btnEnviar.classList.add('visible');
+  bloqueGastos.style.display = 'block';
+  document.getElementById('pedidos-count').textContent = pedidos.length;
 
-  const hasPedidos=pedidos.length>0;
-  document.getElementById('pedidos-section').style.display=hasPedidos?'block':'none';
-  document.getElementById('resumen-card').style.display=hasPedidos?'block':'none';
-  document.getElementById('btn-enviar').classList.toggle('visible',hasPedidos);
-
-  if(hasPedidos){
-    document.getElementById('pedidos-count').textContent=pedidos.length;
-    document.getElementById('lista-pedidos').innerHTML=pedidos.map((p,i)=>{
-      const tags=[];
-      if(p.alc>0) tags.push(`<span class="tag alc">💧 ${p.alc}</span>`);
-      if(p.pur>0) tags.push(`<span class="tag pur">🫧 ${p.pur}</span>`);
-      if(p.nue>0) tags.push(`<span class="tag nue">🆕 ${p.nue}</span>`);
-      tags.push(`<span class="pago-tag ${p.pago}">${ICONOS_PAGO[p.pago]} ${LABELS_PAGO[p.pago]}</span>`);
-      return `<div class="pedido-item">
+  lista.innerHTML = pedidos.map((p, i) => {
+    const tags = [];
+    if (p.alc > 0) tags.push(`<span class="tag alc">💧 ${p.alc}</span>`);
+    if (p.pur > 0) tags.push(`<span class="tag pur">🫧 ${p.pur}</span>`);
+    if (p.nue > 0) tags.push(`<span class="tag nue">🆕 ${p.nue}</span>`);
+    tags.push(`<span class="pago-tag ${p.pago}">${iconoPago[p.pago]} ${labelPago[p.pago]}</span>`);
+    return `
+      <div class="pedido-item">
         <div class="pedido-avatar">${p.nombre.charAt(0)}</div>
         <div class="pedido-info">
           <div class="pedido-nombre">${p.nombre}</div>
-          ${p.comentario?`<div class="pedido-comentario">💬 ${p.comentario}</div>`:''}
-          <div class="pedido-fila2">${tags.join('')}<span class="monto-tag">$${p.monto.toFixed(2)}</span></div>
+          ${p.comentario ? `<div class="pedido-comentario">💬 ${p.comentario}</div>` : ''}
+          <div class="pedido-fila2">
+            ${tags.join('')}
+            <span class="monto-tag">$${p.monto.toFixed(2)}</span>
+          </div>
         </div>
-        <button class="item-del" onclick="eliminarPedido(${i})">✕</button>
-      </div>`;
-    }).join('');
-    document.getElementById('tot-alc').textContent=pedidos.reduce((s,p)=>s+p.alc,0);
-    document.getElementById('tot-pur').textContent=pedidos.reduce((s,p)=>s+p.pur,0);
-    document.getElementById('tot-nue').textContent=pedidos.reduce((s,p)=>s+p.nue,0);
-    document.getElementById('tot-efectivo-grande').textContent='$'+efectivoFinal.toFixed(2);
-    document.getElementById('res-ef').textContent='$'+totEf.toFixed(2);
-    document.getElementById('res-tr').textContent='$'+totTr.toFixed(2);
-    document.getElementById('res-te').textContent='$'+totTe.toFixed(2);
-  }
+        <button class="pedido-del" onclick="eliminarPedido(${i})">✕</button>
+      </div>
+    `;
+  }).join('');
 
-  const hasGastos=gastos.length>0;
-  document.getElementById('gastos-section').style.display=hasGastos?'block':'none';
-  document.getElementById('gastos-resumen-card').style.display=hasGastos?'block':'none';
-  const badge=document.getElementById('gastos-badge');
-  badge.style.display=hasGastos?'inline':'none';
-  badge.textContent=gastos.length;
+  const totAlc = pedidos.reduce((s,p) => s + p.alc, 0);
+  const totPur = pedidos.reduce((s,p) => s + p.pur, 0);
+  const totNue = pedidos.reduce((s,p) => s + p.nue, 0);
+  const totEf  = pedidos.filter(p => p.pago === 'efectivo').reduce((s,p) => s + p.monto, 0);
+  const totTr  = pedidos.filter(p => p.pago === 'transferencia').reduce((s,p) => s + p.monto, 0);
+  const totTe  = pedidos.filter(p => p.pago === 'terminal').reduce((s,p) => s + p.monto, 0);
+  const totGastos = gastos.reduce((s,g) => s + g.monto, 0);
+  const efectivoFinal = totEf - totGastos;
 
-  if(hasGastos){
-    document.getElementById('gastos-count').textContent=gastos.length;
-    document.getElementById('lista-gastos').innerHTML=gastos.map((g,i)=>`
-      <div class="gasto-item">
-        <div class="gasto-icono-badge">${ICONOS_GASTO[g.tipo]}</div>
-        <div class="gasto-info">
-          <div class="gasto-tipo-txt">${LABELS_GASTO[g.tipo]}</div>
-          ${g.desc?`<div class="gasto-desc-txt">${g.desc}</div>`:''}
-          ${g.ticket?`<span class="gasto-ticket-tag">📷 Con ticket</span>`:''}
-        </div>
-        <div class="gasto-monto-txt">-$${g.monto.toFixed(2)}</div>
-        <button class="item-del" onclick="eliminarGasto(${i})">✕</button>
-      </div>`).join('');
-    document.getElementById('tot-gastos').textContent='$'+totGastos.toFixed(2);
-    document.getElementById('tot-efectivo-gastos').textContent='$'+efectivoFinal.toFixed(2);
-  }
+  document.getElementById('tot-alc').textContent = totAlc;
+  document.getElementById('tot-pur').textContent = totPur;
+  document.getElementById('tot-nue').textContent = totNue;
+  document.getElementById('tot-efectivo-grande').textContent = '$' + efectivoFinal.toFixed(2);
+  document.getElementById('res-ef').textContent = '$' + totEf.toFixed(2);
+  document.getElementById('res-tr').textContent = '$' + totTr.toFixed(2);
+  document.getElementById('res-te').textContent = '$' + totTe.toFixed(2);
 }
 
-function confirmarEnvio(){
-  const totEf=pedidos.filter(p=>p.pago==='efectivo').reduce((s,p)=>s+p.monto,0);
-  const totGastos=gastos.reduce((s,g)=>s+g.monto,0);
-  const efectivoFinal=totEf-totGastos;
-  const totG=pedidos.reduce((s,p)=>s+p.alc+p.pur+p.nue,0);
+// ── Gastos ─────────────────────────────────────────────
+const iconosGasto = { material: '🧰', gasolina: '⛽', servicio: '🔧', otro: '📋' };
+const labelsGasto = { material: 'Material', gasolina: 'Gasolina', servicio: 'Pago servicio', otro: 'Otro' };
+
+function seleccionarTipoGasto(tipo) {
+  tipoGastoSeleccionado = tipo;
+  ['material','gasolina','servicio','otro'].forEach(t => {
+    document.getElementById('gt-' + t).classList.toggle('selected', t === tipo);
+  });
+}
+
+function previsualizarTicket(input) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    ticketBase64 = e.target.result.split(',')[1];
+    const preview = document.getElementById('ticket-preview');
+    preview.src = e.target.result;
+    preview.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function agregarGasto() {
+  if (!tipoGastoSeleccionado) {
+    alert('Selecciona el tipo de gasto');
+    return;
+  }
+  const monto = parseFloat(document.getElementById('gasto-monto').value);
+  if (!monto || monto <= 0) {
+    alert('Ingresa el monto del gasto');
+    return;
+  }
+  const desc = document.getElementById('gasto-desc').value.trim();
+
+  gastos.push({
+    tipo: tipoGastoSeleccionado,
+    monto,
+    desc,
+    ticket: ticketBase64
+  });
+
+  // Reset form gastos
+  tipoGastoSeleccionado = null;
+  ['material','gasolina','servicio','otro'].forEach(t => {
+    document.getElementById('gt-' + t).classList.remove('selected');
+  });
+  document.getElementById('gasto-monto').value = '';
+  document.getElementById('gasto-desc').value = '';
+  document.getElementById('ticket-file').value = '';
+  document.getElementById('ticket-preview').style.display = 'none';
+  ticketBase64 = null;
+
+  renderGastos();
+  renderPedidos(); // actualizar efectivo final
+}
+
+function eliminarGasto(idx) {
+  gastos.splice(idx, 1);
+  renderGastos();
+  renderPedidos();
+}
+
+function renderGastos() {
+  const lista = document.getElementById('gastos-lista');
+  const resumen = document.getElementById('gastos-resumen-box');
+
+  if (gastos.length === 0) {
+    lista.style.display = 'none';
+    resumen.style.display = 'none';
+    return;
+  }
+
+  lista.style.display = 'block';
+  resumen.style.display = 'flex';
+
+  lista.innerHTML = gastos.map((g, i) => `
+    <div class="gasto-item">
+      <div class="gasto-icono-badge">${iconosGasto[g.tipo]}</div>
+      <div class="gasto-info">
+        <div class="gasto-tipo-txt">${labelsGasto[g.tipo]}</div>
+        ${g.desc ? `<div class="gasto-desc-txt">${g.desc}</div>` : ''}
+        ${g.ticket ? `<span class="gasto-ticket-tag">📷 Con ticket</span>` : ''}
+      </div>
+      <div class="gasto-monto-txt">-$${g.monto.toFixed(2)}</div>
+      <button class="gasto-del" onclick="eliminarGasto(${i})">✕</button>
+    </div>
+  `).join('');
+
+  const total = gastos.reduce((s,g) => s + g.monto, 0);
+  document.getElementById('tot-gastos').textContent = '$' + total.toFixed(2);
+}
+
+// ── Envío ──────────────────────────────────────────────
+function confirmarEnvio() {
+  const totEf = pedidos.filter(p => p.pago === 'efectivo').reduce((s,p) => s + p.monto, 0);
+  const totGastos = gastos.reduce((s,g) => s + g.monto, 0);
+  const efectivoFinal = totEf - totGastos;
+  const totGarrafones = pedidos.reduce((s,p) => s + p.alc + p.pur + p.nue, 0);
+
   mostrarModal(`
     <div class="modal-icon confirm">📋</div>
     <h2>CONFIRMAR ENVÍO</h2>
-    <p>${pedidos.length} clientes · ${totG} garrafones · ${gastos.length} gastos</p>
-    ${gastos.length>0?`<div class="modal-gastos"><div class="lbl">💸 Gastos</div><div class="monto">-$${totGastos.toFixed(2)}</div></div>`:''}
-    <div class="modal-efectivo"><div class="lbl">💵 Efectivo a entregar</div><div class="monto">$${efectivoFinal.toFixed(2)}</div></div>
+    <p>${pedidos.length} clientes · ${totGarrafones} garrafones · ${gastos.length} gastos</p>
+    ${gastos.length > 0 ? `
+    <div class="modal-gastos">
+      <div class="lbl">💸 Gastos del día</div>
+      <div class="monto">-$${totGastos.toFixed(2)}</div>
+    </div>` : ''}
+    <div class="modal-efectivo">
+      <div class="lbl">💵 Efectivo a entregar</div>
+      <div class="monto">$${efectivoFinal.toFixed(2)}</div>
+    </div>
     <p>¿Enviar el reporte del día?</p>
     <div class="modal-btns">
       <button class="modal-btn cancel" onclick="cerrarModal()">CANCELAR</button>
       <button class="modal-btn ok" onclick="enviarDatos()">ENVIAR ✓</button>
-    </div>`);
+    </div>
+  `);
 }
 
-function enviarDatos(){
-  const fecha=`${ahora.getDate()}/${ahora.getMonth()+1}/${ahora.getFullYear()}`;
-  mostrarModal(`<div class="spinner"></div><h2>ENVIANDO...</h2><p>Subiendo reporte a Google Sheets</p>`);
+async function enviarDatos() {
+  const fecha = `${ahora.getDate()}/${ahora.getMonth()+1}/${ahora.getFullYear()}`;
+  mostrarModal(`<div class="spinner"></div><h2>ENVIANDO...</h2><p>Subiendo el reporte a Google Sheets</p>`);
 
-  // Separar gastos con ticket (imágenes) de los sin ticket
-  const gastosSimples = gastos.map(g=>({tipo:g.tipo,monto:g.monto,desc:g.desc||'',ticket:null}));
-
+  // Mandar los tickets directamente en el payload (Apps Script los sube a Drive)
   const payload = {
     fecha,
-    pedidos: pedidos.map(p=>({
-      cliente:p.nombre,colonia:p.colonia,
-      alcalina:p.alc,purificada:p.pur,nuevo_garrafon:p.nue,
-      metodo_pago:p.pago,monto:p.monto,comentario:p.comentario||''
+    pedidos: pedidos.map(p => ({
+      cliente: p.nombre,
+      colonia: p.colonia,
+      alcalina: p.alc,
+      purificada: p.pur,
+      nuevo_garrafon: p.nue,
+      metodo_pago: p.pago,
+      monto: p.monto,
+      comentario: p.comentario || ''
     })),
-    gastos: gastosSimples
+    gastos: gastos.map(g => ({
+      tipo: g.tipo,
+      monto: g.monto,
+      desc: g.desc,
+      ticketBase64: g.ticket || ''   // <-- el servidor sube esto a Drive
+    }))
   };
 
-  // Enviar via JSONP (funciona desde cualquier dominio sin CORS)
-  jsonp(APPS_SCRIPT_URL + '?action=guardar&data=' + encodeURIComponent(JSON.stringify(payload)), function(res){
-    const totEf=pedidos.filter(p=>p.pago==='efectivo').reduce((s,p)=>s+p.monto,0);
-    const totGastos=gastos.reduce((s,g)=>s+g.monto,0);
-
-    if(res && res.ok){
-      // Subir tickets a Drive por separado si hay
-      const gastosConTicket = gastos.filter(g=>g.ticket);
-      if(gastosConTicket.length > 0){
-        subirTickets(gastosConTicket, fecha, function(){
-          mostrarExito(totEf, totGastos);
-        });
-      } else {
-        mostrarExito(totEf, totGastos);
-      }
-    } else {
-      mostrarModal(`
-        <div class="modal-icon error">❌</div>
-        <h2>ERROR</h2>
-        <p>No se pudo enviar. Intenta de nuevo.</p>
-        <div class="modal-btns">
-          <button class="modal-btn cancel" onclick="cerrarModal()">CERRAR</button>
-          <button class="modal-btn ok" onclick="enviarDatos()">REINTENTAR</button>
-        </div>`);
-    }
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(() => {
+    const totEf = pedidos.filter(p => p.pago === 'efectivo').reduce((s,p) => s + p.monto, 0);
+    const totGastos = gastos.reduce((s,g) => s + g.monto, 0);
+    const efectivoFinal = totEf - totGastos;
+    mostrarModal(`
+      <div class="modal-icon success">✅</div>
+      <h2>¡ENVIADO!</h2>
+      <p>Reporte registrado correctamente.</p>
+      <div class="modal-efectivo">
+        <div class="lbl">💵 Efectivo a entregar</div>
+        <div class="monto">$${efectivoFinal.toFixed(2)}</div>
+      </div>
+      <div class="modal-btns">
+        <button class="modal-btn close" onclick="cerrarModal(); limpiarTodo()">LISTO</button>
+      </div>
+    `);
+  }).catch(() => {
+    mostrarModal(`
+      <div class="modal-icon error">❌</div>
+      <h2>ERROR</h2>
+      <p>No se pudo enviar. Intenta de nuevo.</p>
+      <div class="modal-btns">
+        <button class="modal-btn cancel" onclick="cerrarModal()">CERRAR</button>
+        <button class="modal-btn ok" onclick="enviarDatos()">REINTENTAR</button>
+      </div>
+    `);
   });
 }
 
-function subirTickets(lista, fecha, cb){
-  if(lista.length === 0){ cb(); return; }
-  const g = lista[0];
-  jsonp(APPS_SCRIPT_URL + '?action=ticket&fecha=' + encodeURIComponent(fecha) +
-    '&tipo=' + encodeURIComponent(g.tipo) +
-    '&imagen=' + encodeURIComponent(g.ticket), function(){
-    subirTickets(lista.slice(1), fecha, cb);
-  });
+function limpiarTodo() {
+  pedidos = [];
+  gastos = [];
+  renderPedidos();
+  renderGastos();
+  resetForm();
+  // cerrar el bloque de gastos si quedó abierto
+  const contenido = document.getElementById('gasto-form-contenido');
+  const btn = document.getElementById('btn-toggle-gastos');
+  const flecha = document.getElementById('toggle-gastos-flecha');
+  const txt = document.getElementById('toggle-gastos-txt');
+  if (contenido) contenido.style.display = 'none';
+  if (btn) btn.classList.remove('abierto');
+  if (flecha) flecha.textContent = '▼';
+  if (txt) txt.innerHTML = '🧾 ¿HUBO GASTOS HOY? <span style="opacity:.7;font-size:13px;">(opcional)</span>';
 }
 
-function mostrarExito(totEf, totGastos){
-  mostrarModal(`
-    <div class="modal-icon success">✅</div>
-    <h2>¡ENVIADO!</h2>
-    <p>Reporte registrado correctamente.</p>
-    <div class="modal-efectivo">
-      <div class="lbl">💵 Efectivo a entregar</div>
-      <div class="monto">$${(totEf-totGastos).toFixed(2)}</div>
-    </div>
-    <div class="modal-btns">
-      <button class="modal-btn close" onclick="cerrarModal();limpiarTodo()">LISTO</button>
-    </div>`);
+function mostrarModal(html) {
+  document.getElementById('modal-content').innerHTML = html;
+  document.getElementById('overlay').classList.add('visible');
 }
 
-function limpiarTodo(){pedidos=[];gastos=[];renderTodo();resetVentaForm();}
-function mostrarModal(html){document.getElementById('modal-content').innerHTML=html;document.getElementById('overlay').classList.add('visible');}
-function cerrarModal(){document.getElementById('overlay').classList.remove('visible');}
+function cerrarModal() {
+  document.getElementById('overlay').classList.remove('visible');
+}
 </script>
 </body>
 </html>
