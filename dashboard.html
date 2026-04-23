@@ -439,10 +439,11 @@ const API_URL = "https://script.google.com/macros/s/AKfycbyT6pGkFC8WaeHsBtcmYw-h
 const API_KEY = "aquina2026dash";
 
 // Índices columnas VENTAS REG. (0-based)
+// Row ejemplo: [fecha, Column2, cliente, alcalina, purificada, nuevo, #, colonia, municipio, metodo_pago, calle, vendedor, garr_vendidos, $/M, $/HV, $/NUEVO, DIA, SEMANA, MES, VENTA, comentarios]
 const V = {
-  FECHA:0, CLIENTE:1, ALCALINA:2, PURIFICADA:3, NUEVO_GARRAFON:4,
-  NUM:5, COLONIA:6, MUNICIPIO:7, METODO_PAGO:8, CALLE:9,
-  VENDEDOR:10, GARR_VENDIDOS:11, MES_STR:16, SEMANA:15, DIA:14, VENTA:18
+  FECHA:0, CLIENTE:2, ALCALINA:3, PURIFICADA:4, NUEVO_GARRAFON:5,
+  NUM:6, COLONIA:7, MUNICIPIO:8, METODO_PAGO:9, CALLE:10,
+  VENDEDOR:11, GARR_VENDIDOS:12, DIA:16, SEMANA:17, MES:18, VENTA:19
 };
 
 // Índices columnas CLIENTES DIR. (0-based)
@@ -489,66 +490,64 @@ async function fetchData() {
 }
 
 // ============================================================
+// FECHA HELPERS
+// ============================================================
+function parseDate(raw) {
+  if (!raw) return null;
+  if (raw instanceof Date) return raw;
+  if (typeof raw === 'string') {
+    const m = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) return new Date(parseInt(m[1]), parseInt(m[2])-1, parseInt(m[3]));
+    return new Date(raw);
+  }
+  if (typeof raw === 'number') return new Date((raw - 25569) * 86400 * 1000);
+  return null;
+}
+
+function isGasto(r) {
+  return String(r[V.CLIENTE]||''). toUpperCase() === 'GASTO';
+}
+
+// ============================================================
 // FILTROS
 // ============================================================
 function getFiltered(data) {
   const hoy = new Date();
-  hoy.setHours(0,0,0,0);
-
   return data.filter(r => {
-    const raw = r[V.FECHA];
-    if (!raw) return false;
-    // Ignorar filas GASTO
-    if (String(r[V.CLIENTE]).toUpperCase() === 'GASTO') return false;
-
-    let fecha;
-    if (raw instanceof Date) fecha = raw;
-    else if (typeof raw === 'string') fecha = new Date(raw);
-    else if (typeof raw === 'number') {
-      // Serial de Google Sheets
-      fecha = new Date((raw - 25569) * 86400 * 1000);
-    } else return false;
-
-    if (isNaN(fecha)) return false;
-    fecha.setHours(0,0,0,0);
-
-    if (filtroActual === 'hoy') return fecha.getTime() === hoy.getTime();
+    if (!r[V.FECHA] || isGasto(r)) return false;
+    const fecha = parseDate(r[V.FECHA]);
+    if (!fecha || isNaN(fecha)) return false;
+    if (filtroActual === 'hoy') {
+      return fecha.getFullYear()===hoy.getFullYear() &&
+             fecha.getMonth()===hoy.getMonth() &&
+             fecha.getDate()===hoy.getDate();
+    }
     if (filtroActual === 'semana') {
       const lunes = new Date(hoy);
-      lunes.setDate(hoy.getDate() - hoy.getDay() + 1);
+      lunes.setDate(hoy.getDate() - ((hoy.getDay()+6)%7));
+      lunes.setHours(0,0,0,0);
       return fecha >= lunes;
     }
     if (filtroActual === 'mes') {
-      return fecha.getMonth() === hoy.getMonth() && fecha.getFullYear() === hoy.getFullYear();
+      return fecha.getMonth()===hoy.getMonth() && fecha.getFullYear()===hoy.getFullYear();
     }
     if (filtroActual === 'año') {
-      return fecha.getFullYear() === hoy.getFullYear();
+      return fecha.getFullYear()===hoy.getFullYear();
     }
     return true;
   });
 }
 
 function getHoy() {
-  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const hoy = new Date();
   return ventasData.filter(r => {
-    if (String(r[V.CLIENTE]).toUpperCase() === 'GASTO') return false;
-    const raw = r[V.FECHA];
-    let fecha;
-    if (raw instanceof Date) fecha = new Date(raw);
-    else if (typeof raw === 'string') fecha = new Date(raw);
-    else if (typeof raw === 'number') fecha = new Date((raw - 25569) * 86400 * 1000);
-    else return false;
-    fecha.setHours(0,0,0,0);
-    return fecha.getTime() === hoy.getTime();
+    if (!r[V.FECHA] || isGasto(r)) return false;
+    const fecha = parseDate(r[V.FECHA]);
+    if (!fecha || isNaN(fecha)) return false;
+    return fecha.getFullYear()===hoy.getFullYear() &&
+           fecha.getMonth()===hoy.getMonth() &&
+           fecha.getDate()===hoy.getDate();
   });
-}
-
-function parseDate(raw) {
-  if (!raw) return null;
-  if (raw instanceof Date) return raw;
-  if (typeof raw === 'string') return new Date(raw);
-  if (typeof raw === 'number') return new Date((raw - 25569) * 86400 * 1000);
-  return null;
 }
 
 function formatFecha(raw) {
