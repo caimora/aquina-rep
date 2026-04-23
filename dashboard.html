@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AQUINA — Dashboard en Vivo</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --forest:#1a4a2e;--forest-mid:#2d6a4f;--forest-light:#52b788;
+  --water:#1565c0;--water-light:#4fc3f7;
+  --cream:#f0ebe1;--cream-dark:#e0d8c8;
+  --stone:#8b7355;--stone-light:#b8a98a;
+  --ink:#1a1a1a;--ink-mid:#3d3d3d;--ink-dim:#7a7a7a;
+  --warn:#e07b39;--danger:#c0392b;--good:#27ae60;
+  --card-bg:rgba(255,255,255,0.88);--card-border:rgba(45,106,79,0.15);
+  --shadow:0 4px 24px rgba(26,74,46,0.10);
+}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 20% 0%,rgba(82,183,136,0.12) 0%,transparent 60%),radial-gradient(ellipse 60% 80% at 85% 100%,rgba(21,101,192,0.08) 0%,transparent 60%);pointer-events:none;z-index:0;}
+
+/* LOADING */
+.loading-screen{position:fixed;inset:0;background:var(--cream);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity 0.5s;}
+.loading-screen.hidden{opacity:0;pointer-events:none;}
+.loading-logo{font-family:'Fraunces',serif;font-size:48px;font-weight:700;color:var(--forest);letter-spacing:-2px;}
+.loading-sub{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--stone);}
+.loading-bar{width:200px;height:3px;background:var(--cream-dark);border-radius:2px;overflow:hidden;}
+.loading-fill{height:100%;background:linear-gradient(90deg,var(--forest),var(--forest-light));border-radius:2px;animation:loadfill 2s ease forwards;}
+@keyframes loadfill{from{width:0}to{width:100%}}
+.loading-status{font-size:12px;color:var(--stone-light);}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(240,235,225,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--card-border);display:flex;align-items:center;padding:0 32px;height:64px;}
+.nav-brand{display:flex;align-items:center;gap:10px;margin-right:auto;}
+.nav-logo{width:36px;height:36px;background:var(--forest);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--cream);font-family:'Fraunces',serif;font-size:18px;font-weight:700;}
+.nav-name{font-family:'Fraunces',serif;font-size:20px;font-weight:600;color:var(--forest);letter-spacing:-0.5px;}
+.nav-sub{font-size:10px;color:var(--stone);letter-spacing:1.5px;text-transform:uppercase;margin-top:-2px;}
+.nav-tabs{display:flex;gap:4px;}
+.nav-tab{padding:8px 20px;border-radius:8px;font-size:13px;font-weight:500;color:var(--ink-dim);cursor:pointer;transition:all 0.2s;border:none;background:none;}
+.nav-tab:hover{color:var(--forest);}
+.nav-tab.active{background:var(--forest);color:var(--cream);}
+.nav-right{margin-left:24px;display:flex;align-items:center;gap:12px;}
+.nav-date{font-size:12px;color:var(--stone);padding-left:16px;border-left:1px solid var(--card-border);}
+.live-dot{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--good);font-weight:600;}
+.live-dot::before{content:'';width:7px;height:7px;background:var(--good);border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(1.3)}}
+
+/* MAIN */
+.main{padding-top:64px;position:relative;z-index:1;}
+.page{display:none;padding:32px;max-width:1400px;margin:0 auto;animation:fadeIn 0.35s ease;}
+.page.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* PAGE HEADER */
+.page-header{margin-bottom:28px;display:flex;align-items:flex-end;justify-content:space-between;}
+.page-title{font-family:'Fraunces',serif;font-size:32px;font-weight:300;color:var(--forest);letter-spacing:-1px;line-height:1;}
+.page-title span{font-style:italic;font-weight:600;}
+.page-subtitle{font-size:13px;color:var(--stone);margin-top:4px;}
+.filter-row{display:flex;gap:8px;}
+.filter-btn{padding:8px 16px;border-radius:8px;font-size:12px;font-weight:500;border:1.5px solid var(--card-border);background:var(--card-bg);color:var(--ink-mid);cursor:pointer;transition:all 0.2s;}
+.filter-btn.active,.filter-btn:hover{border-color:var(--forest-light);background:var(--forest);color:var(--cream);}
+
+/* GRIDS */
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:20px;}
+.grid-2-1{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:20px;}
+.grid-3-2{display:grid;grid-template-columns:3fr 2fr;gap:16px;margin-bottom:20px;}
+
+/* CARDS */
+.card{background:var(--card-bg);border-radius:16px;border:1px solid var(--card-border);box-shadow:var(--shadow);backdrop-filter:blur(8px);overflow:hidden;}
+.card-pad{padding:20px 24px;}
+.card-label{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--stone);margin-bottom:8px;}
+.card-value{font-family:'Fraunces',serif;font-size:38px;font-weight:600;color:var(--forest);letter-spacing:-1.5px;line-height:1;}
+.card-value.blue{color:var(--water);}
+.card-value.orange{color:var(--warn);}
+.card-sub{font-size:12px;color:var(--ink-dim);margin-top:6px;}
+
+.kpi-card{background:var(--card-bg);border-radius:16px;border:1px solid var(--card-border);box-shadow:var(--shadow);padding:20px 24px;position:relative;overflow:hidden;}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.kpi-forest::before{background:linear-gradient(90deg,var(--forest),var(--forest-light));}
+.kpi-water::before{background:linear-gradient(90deg,var(--water),var(--water-light));}
+.kpi-warn::before{background:linear-gradient(90deg,var(--warn),#f4a261);}
+.kpi-good::before{background:linear-gradient(90deg,var(--good),#2ecc71);}
+
+/* CHART */
+.chart-wrap{padding:20px 24px;}
+.chart-title{font-size:13px;font-weight:600;color:var(--ink-mid);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;}
+.chart-title span{font-size:11px;color:var(--stone);font-weight:400;}
+
+/* BARS */
+.bar-chart{display:flex;align-items:flex-end;gap:8px;height:150px;}
+.bar-group{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end;}
+.bar{width:100%;border-radius:6px 6px 0 0;transition:opacity 0.2s;cursor:pointer;background:linear-gradient(180deg,#52b788,#2d6a4f);}
+.bar.current{background:linear-gradient(180deg,#1a4a2e,#2d6a4f);}
+.bar:hover{opacity:0.8;}
+.bar-label{font-size:10px;color:var(--ink-dim);text-align:center;}
+.bar-val{font-size:10px;font-weight:600;color:var(--forest);text-align:center;}
+
+/* DONUT */
+.donut-wrap{display:flex;align-items:center;gap:24px;}
+.donut-legend{flex:1;}
+.legend-item{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.legend-label{font-size:12px;color:var(--ink-mid);flex:1;}
+.legend-val{font-size:12px;font-weight:600;color:var(--ink);}
+
+/* PROGRESS */
+.progress-wrap{margin-bottom:14px;}
+.progress-header{display:flex;justify-content:space-between;margin-bottom:6px;}
+.progress-name{font-size:13px;color:var(--ink-mid);}
+.progress-val{font-size:13px;font-weight:600;color:var(--forest);}
+.progress-track{height:8px;background:var(--cream-dark);border-radius:4px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--forest-mid),var(--forest-light));transition:width 1.2s ease;}
+
+/* TABLE */
+.data-table{width:100%;border-collapse:collapse;}
+.data-table th{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--stone);padding:10px 16px;text-align:left;border-bottom:1.5px solid var(--cream-dark);background:rgba(240,235,225,0.5);}
+.data-table td{font-size:13px;color:var(--ink-mid);padding:11px 16px;border-bottom:1px solid rgba(224,216,200,0.5);}
+.data-table tr:last-child td{border-bottom:none;}
+.data-table tr:hover td{background:rgba(82,183,136,0.05);}
+.scrollable{overflow-y:auto;max-height:340px;}
+.scrollable::-webkit-scrollbar{width:4px;}
+.scrollable::-webkit-scrollbar-thumb{background:var(--cream-dark);border-radius:2px;}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.badge-active{background:rgba(39,174,96,0.12);color:var(--good);}
+.badge-warn{background:rgba(224,123,57,0.12);color:var(--warn);}
+.badge-danger{background:rgba(192,57,43,0.12);color:var(--danger);}
+.badge-new{background:rgba(21,101,192,0.12);color:var(--water);}
+
+/* METRIC ROW */
+.metric-row{display:flex;align-items:center;padding:14px 0;border-bottom:1px solid rgba(224,216,200,0.5);gap:16px;}
+.metric-row:last-child{border-bottom:none;}
+.metric-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.metric-body{flex:1;}
+.metric-name{font-size:13px;font-weight:500;color:var(--ink-mid);}
+.metric-desc{font-size:11px;color:var(--stone);margin-top:1px;}
+.metric-value{font-family:'Fraunces',serif;font-size:22px;font-weight:600;color:var(--forest);letter-spacing:-0.5px;}
+
+/* ALERT */
+.alert{padding:12px 16px;border-radius:10px;display:flex;gap:12px;align-items:flex-start;margin-bottom:10px;font-size:13px;}
+.alert-warn{background:rgba(224,123,57,0.1);border-left:3px solid var(--warn);}
+.alert-danger{background:rgba(192,57,43,0.08);border-left:3px solid var(--danger);}
+.alert-good{background:rgba(39,174,96,0.08);border-left:3px solid var(--good);}
+.alert-icon{font-size:16px;flex-shrink:0;}
+.alert-text{color:var(--ink-mid);line-height:1.5;}
+.alert-text strong{color:var(--ink);font-weight:600;}
+
+.section-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--stone);margin-bottom:12px;margin-top:4px;display:flex;align-items:center;gap:12px;}
+.section-label::after{content:'';flex:1;height:1px;background:var(--cream-dark);}
+
+/* PRODUCT PILLS */
+.pill{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;}
+.pill-alcalina{background:rgba(45,106,79,0.12);color:var(--forest-mid);}
+.pill-purificada{background:rgba(21,101,192,0.12);color:var(--water);}
+.pill-nuevo{background:rgba(224,123,57,0.12);color:var(--warn);}
+
+@media(max-width:1024px){
+  .grid-4{grid-template-columns:repeat(2,1fr);}
+  .grid-3{grid-template-columns:repeat(2,1fr);}
+  .grid-2-1,.grid-3-2{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="loading-logo">AQUINA</div>
+  <div class="loading-sub">agua alcalina de origen</div>
+  <div class="loading-bar"><div class="loading-fill"></div></div>
+  <div class="loading-status" id="loadingStatus">Conectando con Google Sheets...</div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-brand">
+    <div class="nav-logo">Aq</div>
+    <div>
+      <div class="nav-name">AQUINA</div>
+      <div class="nav-sub">dashboard operativo</div>
+    </div>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('ventas',this)">📊 Ventas</button>
+    <button class="nav-tab" onclick="showPage('clientes',this)">👥 Clientes</button>
+    <button class="nav-tab" onclick="showPage('operaciones',this)">🚚 Operaciones</button>
+  </div>
+  <div class="nav-right">
+    <div class="live-dot" id="liveDot">En vivo</div>
+    <div class="nav-date" id="navDate"></div>
+  </div>
+</nav>
+
+<main class="main">
+
+<!-- VENTAS -->
+<div class="page active" id="page-ventas">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Reporte de <span>Ventas</span></div>
+      <div class="page-subtitle" id="ventasSubtitle">Cargando datos...</div>
+    </div>
+    <div class="filter-row">
+      <button class="filter-btn" onclick="setFiltro('hoy',this)">Hoy</button>
+      <button class="filter-btn" onclick="setFiltro('semana',this)">Semana</button>
+      <button class="filter-btn active" onclick="setFiltro('mes',this)">Mes</button>
+      <button class="filter-btn" onclick="setFiltro('año',this)">Año</button>
+    </div>
+  </div>
+
+  <div class="grid-4">
+    <div class="kpi-card kpi-forest">
+      <div class="card-label">Venta del Período</div>
+      <div class="card-value" id="kpi-venta">—</div>
+      <div class="card-sub" id="kpi-venta-sub">calculando...</div>
+    </div>
+    <div class="kpi-card kpi-water">
+      <div class="card-label">Garrafones Vendidos</div>
+      <div class="card-value blue" id="kpi-garr">—</div>
+      <div class="card-sub" id="kpi-garr-sub">calculando...</div>
+    </div>
+    <div class="kpi-card kpi-warn">
+      <div class="card-label">Ticket Promedio</div>
+      <div class="card-value orange" id="kpi-ticket">—</div>
+      <div class="card-sub" id="kpi-ticket-sub">calculando...</div>
+    </div>
+    <div class="kpi-card kpi-good">
+      <div class="card-label">Total Entregas</div>
+      <div class="card-value" id="kpi-entregas">—</div>
+      <div class="card-sub" id="kpi-entregas-sub">calculando...</div>
+    </div>
+  </div>
+
+  <div class="grid-2-1">
+    <div class="card">
+      <div class="chart-wrap">
+        <div class="chart-title">Ventas por Semana <span>VENTAS REG. · Col. SEMANA + VENTA</span></div>
+        <div class="bar-chart" id="chartSemanas"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="chart-wrap">
+        <div class="chart-title">Mix de Producto <span>Garrafones totales</span></div>
+        <div class="donut-wrap">
+          <svg id="donutProducto" width="100" height="100" viewBox="0 0 36 36"></svg>
+          <div class="donut-legend" id="legendProducto"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="chart-wrap">
+        <div class="chart-title">Método de Pago</div>
+        <div id="chartPago"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="chart-wrap">
+        <div class="chart-title">Por Municipio</div>
+        <div id="chartMunicipio"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="chart-wrap">
+        <div class="chart-title">Por Vendedor</div>
+        <div id="chartVendedor"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Últimas Ventas Registradas</div>
+  <div class="card">
+    <div class="scrollable">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Fecha</th><th>Cliente</th><th>Municipio</th>
+            <th>Alcalina</th><th>Purificada</th><th>Nuevo</th>
+            <th>Método Pago</th><th>Vendedor</th><th>Venta $</th>
+          </tr>
+        </thead>
+        <tbody id="tablaVentas"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- CLIENTES -->
+<div class="page" id="page-clientes">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Gestión de <span>Clientes</span></div>
+      <div class="page-subtitle">Fuente: CLIENTES DIR. · Segmentación en tiempo real</div>
+    </div>
+  </div>
+
+  <div class="grid-4">
+    <div class="kpi-card kpi-forest">
+      <div class="card-label">Total Registrados</div>
+      <div class="card-value" id="kpi-total-clientes">—</div>
+      <div class="card-sub">COUNT(CLIENTE)</div>
+    </div>
+    <div class="kpi-card kpi-good">
+      <div class="card-label">Activos</div>
+      <div class="card-value" id="kpi-activos">—</div>
+      <div class="card-sub" id="kpi-activos-pct">del total</div>
+    </div>
+    <div class="kpi-card kpi-warn">
+      <div class="card-label">A Llamar</div>
+      <div class="card-value orange" id="kpi-llamar">—</div>
+      <div class="card-sub">Requieren seguimiento</div>
+    </div>
+    <div class="kpi-card kpi-warn">
+      <div class="card-label">NON / Inactivos</div>
+      <div class="card-value orange" id="kpi-non">—</div>
+      <div class="card-sub">Sin compra reciente</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <div class="section-label">Alertas de Retención</div>
+      <div id="alertasRetencion"></div>
+    </div>
+    <div class="card">
+      <div class="chart-wrap">
+        <div class="chart-title">Top Clientes por Historial $</div>
+        <div id="topClientes"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Directorio Completo</div>
+  <div class="card">
+    <div class="scrollable">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Cliente</th><th>Municipio</th><th>Historial $</th>
+            <th>Última Compra</th><th>Días Sin Compra</th>
+            <th>Frec. Media</th><th>Compras</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="tablaClientes"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- OPERACIONES -->
+<div class="page" id="page-operaciones">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Panel de <span>Operaciones</span></div>
+      <div class="page-subtitle">Entregas del día, rutas y rendimiento por repartidor</div>
+    </div>
+  </div>
+
+  <div class="grid-4">
+    <div class="kpi-card kpi-forest">
+      <div class="card-label">Garrafones Hoy</div>
+      <div class="card-value" id="kpi-garr-hoy">—</div>
+      <div class="card-sub" id="kpi-garr-hoy-sub">hoy</div>
+    </div>
+    <div class="kpi-card kpi-water">
+      <div class="card-label">Entregas Hoy</div>
+      <div class="card-value blue" id="kpi-entregas-hoy">—</div>
+      <div class="card-sub">clientes atendidos</div>
+    </div>
+    <div class="kpi-card kpi-warn">
+      <div class="card-label">Promedio Diario Mes</div>
+      <div class="card-value orange" id="kpi-prom-diario">—</div>
+      <div class="card-sub">garrafones/día</div>
+    </div>
+    <div class="kpi-card kpi-forest">
+      <div class="card-label">Venta de Hoy</div>
+      <div class="card-value" id="kpi-venta-hoy">—</div>
+      <div class="card-sub">ingresos del día</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="chart-wrap">
+        <div class="chart-title">Entregas del Día</div>
+        <div class="scrollable" style="max-height:280px;">
+          <table class="data-table">
+            <thead>
+              <tr><th>Cliente</th><th>Colonia</th><th>Garr.</th><th>Pago</th><th>$</th></tr>
+            </thead>
+            <tbody id="tablaHoy"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="chart-wrap">
+        <div class="chart-title">Rendimiento por Vendedor — Mes</div>
+        <div id="chartVendedorOps"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="chart-wrap">
+        <div class="chart-title">Distribución por Zona</div>
+        <div id="chartZonas"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="chart-wrap">
+        <div class="chart-title">Método de Pago — Hoy</div>
+        <div id="chartPagoHoy"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="chart-wrap">
+        <div class="chart-title">Actividad Reciente</div>
+        <div id="actividadReciente"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const API_URL = "https://script.google.com/macros/s/AKfycbyT6pGkFC8WaeHsBtcmYw-hbyNYeq7eYRWyep9Gto5Xj0VrIGXbKIXIWA4veJxneKs/exec";
+const API_KEY = "aquina2026dash";
+
+// Índices columnas VENTAS REG. (0-based)
+const V = {
+  FECHA:0, CLIENTE:1, ALCALINA:2, PURIFICADA:3, NUEVO_GARRAFON:4,
+  NUM:5, COLONIA:6, MUNICIPIO:7, METODO_PAGO:8, CALLE:9,
+  VENDEDOR:10, GARR_VENDIDOS:11, MES_STR:16, SEMANA:15, DIA:14, VENTA:18
+};
+
+// Índices columnas CLIENTES DIR. (0-based)
+const C = {
+  CLIENTE:0, TELEFONO:1, CALLE:2, NUMERO:3, COLONIA:4,
+  MUNICIPIO:5, ID:6, HISTORIAL:7, FECHA_INGRESO:8, ULTIMA_COMPRA:9,
+  PROMEDIO:10, CANT_COMPRAS:11, FRECUENCIA:12, TENDENCIA:13,
+  DIAS_SIN_COMPRA:14, STATUS:15
+};
+
+let ventasData = [];
+let clientesData = [];
+let filtroActual = 'mes';
+
+// ============================================================
+// FETCH DATOS
+// ============================================================
+async function fetchData() {
+  setLoadingStatus("Conectando con Google Sheets...");
+  try {
+    const url = `${API_URL}?action=dashboard&key=${API_KEY}`;
+    const res = await fetch(url);
+    const json = await res.json();
+
+    if (json.error) throw new Error(json.error);
+
+    // Separar headers de datos
+    ventasData = json.ventas.slice(1).filter(r => r[V.CLIENTE] && r[V.FECHA]);
+    clientesData = json.clientes.slice(1).filter(r => r[C.CLIENTE]);
+
+    setLoadingStatus("Procesando datos...");
+    await new Promise(r => setTimeout(r, 400));
+
+    renderAll();
+    hideLoading();
+
+    // Auto-refresh cada 5 minutos
+    setTimeout(fetchData, 5 * 60 * 1000);
+
+  } catch(err) {
+    setLoadingStatus("⚠ Error: " + err.message);
+    console.error(err);
+  }
+}
+
+// ============================================================
+// FILTROS
+// ============================================================
+function getFiltered(data) {
+  const hoy = new Date();
+  hoy.setHours(0,0,0,0);
+
+  return data.filter(r => {
+    const raw = r[V.FECHA];
+    if (!raw) return false;
+    // Ignorar filas GASTO
+    if (String(r[V.CLIENTE]).toUpperCase() === 'GASTO') return false;
+
+    let fecha;
+    if (raw instanceof Date) fecha = raw;
+    else if (typeof raw === 'string') fecha = new Date(raw);
+    else if (typeof raw === 'number') {
+      // Serial de Google Sheets
+      fecha = new Date((raw - 25569) * 86400 * 1000);
+    } else return false;
+
+    if (isNaN(fecha)) return false;
+    fecha.setHours(0,0,0,0);
+
+    if (filtroActual === 'hoy') return fecha.getTime() === hoy.getTime();
+    if (filtroActual === 'semana') {
+      const lunes = new Date(hoy);
+      lunes.setDate(hoy.getDate() - hoy.getDay() + 1);
+      return fecha >= lunes;
+    }
+    if (filtroActual === 'mes') {
+      return fecha.getMonth() === hoy.getMonth() && fecha.getFullYear() === hoy.getFullYear();
+    }
+    if (filtroActual === 'año') {
+      return fecha.getFullYear() === hoy.getFullYear();
+    }
+    return true;
+  });
+}
+
+function getHoy() {
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  return ventasData.filter(r => {
+    if (String(r[V.CLIENTE]).toUpperCase() === 'GASTO') return false;
+    const raw = r[V.FECHA];
+    let fecha;
+    if (raw instanceof Date) fecha = new Date(raw);
+    else if (typeof raw === 'string') fecha = new Date(raw);
+    else if (typeof raw === 'number') fecha = new Date((raw - 25569) * 86400 * 1000);
+    else return false;
+    fecha.setHours(0,0,0,0);
+    return fecha.getTime() === hoy.getTime();
+  });
+}
+
+function parseDate(raw) {
+  if (!raw) return null;
+  if (raw instanceof Date) return raw;
+  if (typeof raw === 'string') return new Date(raw);
+  if (typeof raw === 'number') return new Date((raw - 25569) * 86400 * 1000);
+  return null;
+}
+
+function formatFecha(raw) {
+  const d = parseDate(raw);
+  if (!d || isNaN(d)) return '—';
+  return d.toLocaleDateString('es-MX', {day:'2-digit',month:'short',year:'2-digit'});
+}
+
+function fmt$(n) {
+  const num = parseFloat(n) || 0;
+  return '$' + num.toLocaleString('es-MX', {minimumFractionDigits:0, maximumFractionDigits:0});
+}
+
+// ============================================================
+// RENDER ALL
+// ============================================================
+function renderAll() {
+  renderVentas();
+  renderClientes();
+  renderOperaciones();
+
+  const hoy = new Date();
+  document.getElementById('navDate').textContent =
+    hoy.toLocaleDateString('es-MX',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  document.getElementById('ventasSubtitle').textContent =
+    `${ventasData.length} registros cargados · VENTAS REG. · actualizado ${new Date().toLocaleTimeString('es-MX')}`;
+}
+
+// ============================================================
+// VENTAS PAGE
+// ============================================================
+function renderVentas() {
+  const filtered = getFiltered(ventasData);
+
+  // KPIs
+  const totalVenta = filtered.reduce((s,r) => s + (parseFloat(r[V.VENTA])||0), 0);
+  const totalGarr = filtered.reduce((s,r) => s + (parseFloat(r[V.GARR_VENDIDOS])||0), 0);
+  const ticket = filtered.length > 0 ? totalVenta / filtered.length : 0;
+
+  document.getElementById('kpi-venta').textContent = fmt$(totalVenta);
+  document.getElementById('kpi-venta-sub').textContent = `SUM de ${filtered.length} registros`;
+  document.getElementById('kpi-garr').textContent = Math.round(totalGarr).toLocaleString();
+  document.getElementById('kpi-garr-sub').textContent = 'garrafones entregados';
+  document.getElementById('kpi-ticket').textContent = fmt$(ticket);
+  document.getElementById('kpi-ticket-sub').textContent = 'promedio por venta';
+  document.getElementById('kpi-entregas').textContent = filtered.length.toLocaleString();
+  document.getElementById('kpi-entregas-sub').textContent = 'entregas en el período';
+
+  // Barras por semana
+  renderBarrasSemanas(filtered);
+
+  // Donut producto
+  const alcalina = filtered.reduce((s,r) => s + (parseFloat(r[V.ALCALINA])||0), 0);
+  const purificada = filtered.reduce((s,r) => s + (parseFloat(r[V.PURIFICADA])||0), 0);
+  const nuevo = filtered.reduce((s,r) => s + (parseFloat(r[V.NUEVO_GARRAFON])||0), 0);
+  renderDonutProducto(alcalina, purificada, nuevo);
+
+  // Método de pago
+  renderProgreso('chartPago', contarPor(filtered, V.METODO_PAGO), fmt$, false, true);
+
+  // Municipio
+  renderProgreso('chartMunicipio', contarPorGarr(filtered, V.MUNICIPIO), v => v + ' garr.', false);
+
+  // Vendedor
+  renderVendedorMetrics('chartVendedor', filtered);
+
+  // Tabla últimas ventas
+  renderTablaVentas(filtered);
+}
+
+function contarPor(rows, col) {
+  const map = {};
+  rows.forEach(r => {
+    const k = r[col] || 'Sin dato';
+    const v = parseFloat(r[V.VENTA]) || 0;
+    map[k] = (map[k]||0) + v;
+  });
+  return Object.entries(map).sort((a,b) => b[1]-a[1]);
+}
+
+function contarPorGarr(rows, col) {
+  const map = {};
+  rows.forEach(r => {
+    const k = r[col] || 'Sin dato';
+    const v = parseFloat(r[V.GARR_VENDIDOS]) || 0;
+    map[k] = (map[k]||0) + v;
+  });
+  return Object.entries(map).sort((a,b) => b[1]-a[1]);
+}
+
+function renderBarrasSemanas(rows) {
+  const map = {};
+  rows.forEach(r => {
+    const s = r[V.SEMANA] || '?';
+    const v = parseFloat(r[V.VENTA]) || 0;
+    map[s] = (map[s]||0) + v;
+  });
+  const entries = Object.entries(map).sort((a,b) => {
+    const na = parseInt(String(a[0]).replace(/\D/g,'')) || 0;
+    const nb = parseInt(String(b[0]).replace(/\D/g,'')) || 0;
+    return na - nb;
+  }).slice(-10);
+
+  if (entries.length === 0) {
+    document.getElementById('chartSemanas').innerHTML = '<div style="color:var(--stone);font-size:13px;padding:20px;">Sin datos para el período</div>';
+    return;
+  }
+
+  const max = Math.max(...entries.map(e => e[1]));
+  const lastIdx = entries.length - 1;
+
+  const html = entries.map(([sem, val], i) => `
+    <div class="bar-group">
+      <div class="bar-val">${fmt$(val)}</div>
+      <div class="bar ${i===lastIdx?'current':''}" style="height:${Math.max(8,(val/max)*100)}%;"></div>
+      <div class="bar-label">${sem}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('chartSemanas').innerHTML = html;
+}
+
+function renderDonutProducto(alc, pur, nue) {
+  const total = alc + pur + nue || 1;
+  const circum = 87.96;
+  const r = 14;
+
+  function seg(val, offset, color) {
+    const pct = val / total;
+    const dash = pct * circum;
+    return `<circle cx="18" cy="18" r="${r}" fill="none" stroke="${color}" stroke-width="4"
+      stroke-dasharray="${dash.toFixed(2)} ${circum}" stroke-dashoffset="${(-offset).toFixed(2)}" stroke-linecap="round"/>`;
+  }
+
+  const o1 = -21.99;
+  const o2 = o1 - (alc/total)*circum;
+  const o3 = o2 - (pur/total)*circum;
+
+  document.getElementById('donutProducto').innerHTML = `
+    <circle cx="18" cy="18" r="${r}" fill="none" stroke="#e0d8c8" stroke-width="4"/>
+    ${seg(alc, -o1, '#2d6a4f')}
+    ${seg(pur, -o2, '#1565c0')}
+    ${seg(nue, -o3, '#e07b39')}
+    <text x="18" y="20" text-anchor="middle" font-size="4.5" fill="#1a4a2e" font-weight="700">${Math.round(total)} u</text>
+  `;
+
+  document.getElementById('legendProducto').innerHTML = `
+    <div class="legend-item"><div class="legend-dot" style="background:#2d6a4f;"></div><div class="legend-label">Alcalina</div><div class="legend-val">${Math.round(alc)} u · ${Math.round(alc/total*100)}%</div></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#1565c0;"></div><div class="legend-label">Purificada</div><div class="legend-val">${Math.round(pur)} u · ${Math.round(pur/total*100)}%</div></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#e07b39;"></div><div class="legend-label">Garrafón Nuevo</div><div class="legend-val">${Math.round(nue)} u · ${Math.round(nue/total*100)}%</div></div>
+  `;
+}
+
+function renderProgreso(id, entries, fmtFn, useCount=false, isMoney=false) {
+  if (!entries.length) { document.getElementById(id).innerHTML = '<div style="color:var(--stone);font-size:13px;">Sin datos</div>'; return; }
+  const max = entries[0][1];
+  const colors = ['linear-gradient(90deg,var(--forest-mid),var(--forest-light))',
+    'linear-gradient(90deg,#1565c0,#4fc3f7)',
+    'linear-gradient(90deg,var(--warn),#f4a261)',
+    'linear-gradient(90deg,var(--good),#2ecc71)'];
+
+  document.getElementById(id).innerHTML = entries.slice(0,6).map(([k,v],i) => `
+    <div class="progress-wrap">
+      <div class="progress-header">
+        <span class="progress-name">${k}</span>
+        <span class="progress-val">${isMoney ? fmt$(v) : Math.round(v)}</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" style="width:${Math.round((v/max)*100)}%;background:${colors[i%colors.length]};"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderVendedorMetrics(id, rows) {
+  const map = {};
+  rows.forEach(r => {
+    const k = r[V.VENDEDOR] || 'Sin asignar';
+    if (!map[k]) map[k] = {venta:0, garr:0, count:0};
+    map[k].venta += parseFloat(r[V.VENTA])||0;
+    map[k].garr += parseFloat(r[V.GARR_VENDIDOS])||0;
+    map[k].count++;
+  });
+  const entries = Object.entries(map).sort((a,b) => b[1].venta - a[1].venta);
+  const icons = ['👩','👨','🏠','👤'];
+  const bgs = ['rgba(45,106,79,0.12)','rgba(21,101,192,0.12)','rgba(224,123,57,0.12)','rgba(139,115,85,0.12)'];
+
+  document.getElementById(id).innerHTML = entries.slice(0,4).map(([k,v],i) => `
+    <div class="metric-row">
+      <div class="metric-icon" style="background:${bgs[i%bgs.length]}">${icons[i%icons.length]}</div>
+      <div class="metric-body">
+        <div class="metric-name">${k}</div>
+        <div class="metric-desc">${v.count} entregas · ${Math.round(v.garr)} garr.</div>
+      </div>
+      <div class="metric-value">${fmt$(v.venta)}</div>
+    </div>
+  `).join('');
+}
+
+function renderTablaVentas(rows) {
+  const sorted = [...rows].sort((a,b) => {
+    const da = parseDate(a[V.FECHA])||new Date(0);
+    const db = parseDate(b[V.FECHA])||new Date(0);
+    return db-da;
+  }).slice(0,50);
+
+  document.getElementById('tablaVentas').innerHTML = sorted.map(r => `
+    <tr>
+      <td>${formatFecha(r[V.FECHA])}</td>
+      <td><strong>${r[V.CLIENTE]||'—'}</strong></td>
+      <td>${r[V.MUNICIPIO]||'—'}</td>
+      <td>${r[V.ALCALINA]||0}</td>
+      <td>${r[V.PURIFICADA]||0}</td>
+      <td>${r[V.NUEVO_GARRAFON]||0}</td>
+      <td>${r[V.METODO_PAGO]||'—'}</td>
+      <td>${r[V.VENDEDOR]||'—'}</td>
+      <td><strong>${fmt$(r[V.VENTA])}</strong></td>
+    </tr>
+  `).join('');
+}
+
+// ============================================================
+// CLIENTES PAGE
+// ============================================================
+function renderClientes() {
+  const total = clientesData.length;
+  const activos = clientesData.filter(r => String(r[C.STATUS]||'').toLowerCase() === 'activo').length;
+  const llamar = clientesData.filter(r => String(r[C.STATUS]||'').toLowerCase() === 'llamar').length;
+  const non = clientesData.filter(r => String(r[C.STATUS]||'').toLowerCase() === 'non').length;
+
+  document.getElementById('kpi-total-clientes').textContent = total;
+  document.getElementById('kpi-activos').textContent = activos;
+  document.getElementById('kpi-activos-pct').textContent = `${Math.round(activos/total*100)}% del total`;
+  document.getElementById('kpi-llamar').textContent = llamar;
+  document.getElementById('kpi-non').textContent = non;
+
+  // Alertas
+  const criticos = clientesData
+    .filter(r => (parseFloat(r[C.DIAS_SIN_COMPRA])||0) > 20)
+    .sort((a,b) => (parseFloat(b[C.HISTORIAL])||0) - (parseFloat(a[C.HISTORIAL])||0))
+    .slice(0,3);
+
+  document.getElementById('alertasRetencion').innerHTML = `
+    ${llamar > 0 ? `<div class="alert alert-warn"><div class="alert-icon">⚠️</div><div class="alert-text"><strong>${llamar} clientes requieren llamada</strong> — Revisa su última compra y contacta antes de que pasen a NON.</div></div>` : ''}
+    ${non > 0 ? `<div class="alert alert-danger"><div class="alert-icon">🔴</div><div class="alert-text"><strong>${non} clientes marcados NON</strong> — Evalúa si pueden reactivarse con una llamada o promoción.</div></div>` : ''}
+    ${criticos.map(r => `<div class="alert alert-warn"><div class="alert-icon">📞</div><div class="alert-text"><strong>${r[C.CLIENTE]}</strong> — ${r[C.DIAS_SIN_COMPRA]} días sin compra · Historial ${fmt$(r[C.HISTORIAL])}</div></div>`).join('')}
+    ${activos > 50 ? `<div class="alert alert-good"><div class="alert-icon">✅</div><div class="alert-text"><strong>${activos} clientes activos</strong> — Base sólida. Mantén la frecuencia de visitas.</div></div>` : ''}
+  `;
+
+  // Top clientes
+  const top = [...clientesData]
+    .sort((a,b) => (parseFloat(b[C.HISTORIAL])||0) - (parseFloat(a[C.HISTORIAL])||0))
+    .slice(0,6);
+  const maxH = parseFloat(top[0]?.[C.HISTORIAL])||1;
+
+  document.getElementById('topClientes').innerHTML = top.map(r => `
+    <div class="progress-wrap">
+      <div class="progress-header">
+        <span class="progress-name">${String(r[C.CLIENTE]).split('(')[0].trim()}</span>
+        <span class="progress-val">${fmt$(r[C.HISTORIAL])}</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" style="width:${Math.round((parseFloat(r[C.HISTORIAL])||0)/maxH*100)}%;"></div>
+      </div>
+    </div>
+  `).join('');
+
+  // Tabla clientes
+  const sorted = [...clientesData].sort((a,b) => (parseFloat(b[C.HISTORIAL])||0) - (parseFloat(a[C.HISTORIAL])||0));
+  document.getElementById('tablaClientes').innerHTML = sorted.map(r => {
+    const status = String(r[C.STATUS]||'').toLowerCase();
+    const badgeClass = status === 'activo' ? 'badge-active' :
+                       status === 'llamar' ? 'badge-warn' :
+                       status === 'non' ? 'badge-danger' : 'badge-new';
+    const dias = parseFloat(r[C.DIAS_SIN_COMPRA])||0;
+    return `
+      <tr>
+        <td><strong>${r[C.CLIENTE]||'—'}</strong></td>
+        <td>${r[C.MUNICIPIO]||'—'}</td>
+        <td>${fmt$(r[C.HISTORIAL])}</td>
+        <td>${formatFecha(r[C.ULTIMA_COMPRA])}</td>
+        <td style="color:${dias>20?'var(--danger)':dias>10?'var(--warn)':'var(--good)'}"><strong>${dias}</strong></td>
+        <td>${r[C.FRECUENCIA]||'—'}</td>
+        <td>${r[C.CANT_COMPRAS]||'—'}</td>
+        <td><span class="badge ${badgeClass}">${r[C.STATUS]||'—'}</span></td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// ============================================================
+// OPERACIONES PAGE
+// ============================================================
+function renderOperaciones() {
+  const hoy = getHoy();
+  const mesFilt = getFiltered(ventasData); // con filtro mes
+
+  const garrHoy = hoy.reduce((s,r) => s + (parseFloat(r[V.GARR_VENDIDOS])||0), 0);
+  const ventaHoy = hoy.reduce((s,r) => s + (parseFloat(r[V.VENTA])||0), 0);
+
+  // Días únicos en el mes
+  const diasSet = new Set();
+  mesFilt.forEach(r => {
+    const d = parseDate(r[V.FECHA]);
+    if (d) diasSet.add(d.toDateString());
+  });
+  const diasActivos = diasSet.size || 1;
+  const garrMes = mesFilt.reduce((s,r) => s + (parseFloat(r[V.GARR_VENDIDOS])||0), 0);
+  const promDiario = garrMes / diasActivos;
+
+  document.getElementById('kpi-garr-hoy').textContent = Math.round(garrHoy);
+  document.getElementById('kpi-garr-hoy-sub').textContent = formatFecha(new Date());
+  document.getElementById('kpi-entregas-hoy').textContent = hoy.length;
+  document.getElementById('kpi-prom-diario').textContent = promDiario.toFixed(1);
+  document.getElementById('kpi-venta-hoy').textContent = fmt$(ventaHoy);
+
+  // Tabla hoy
+  document.getElementById('tablaHoy').innerHTML = hoy.length > 0
+    ? hoy.map(r => `
+        <tr>
+          <td><strong>${String(r[V.CLIENTE]).split('(')[0].trim()}</strong></td>
+          <td>${r[V.COLONIA]||'—'}</td>
+          <td>${r[V.GARR_VENDIDOS]||0}</td>
+          <td>${r[V.METODO_PAGO]||'—'}</td>
+          <td>${fmt$(r[V.VENTA])}</td>
+        </tr>
+      `).join('') + `
+        <tr style="font-weight:700;background:rgba(82,183,136,0.08);">
+          <td colspan="2">TOTAL</td>
+          <td>${Math.round(garrHoy)}</td>
+          <td>—</td>
+          <td>${fmt$(ventaHoy)}</td>
+        </tr>
+      `
+    : '<tr><td colspan="5" style="text-align:center;color:var(--stone);padding:20px;">Sin entregas registradas hoy</td></tr>';
+
+  // Vendedor ops
+  renderVendedorMetrics('chartVendedorOps', mesFilt);
+
+  // Zonas
+  renderProgreso('chartZonas', contarPorGarr(mesFilt, V.MUNICIPIO), v => v + ' garr.', false);
+
+  // Pago hoy
+  renderProgreso('chartPagoHoy', contarPor(hoy, V.METODO_PAGO), fmt$, false, true);
+
+  // Actividad reciente
+  const recientes = [...ventasData]
+    .filter(r => String(r[V.CLIENTE]).toUpperCase() !== 'GASTO')
+    .sort((a,b) => (parseDate(b[V.FECHA])||0) - (parseDate(a[V.FECHA])||0))
+    .slice(0,5);
+
+  document.getElementById('actividadReciente').innerHTML = recientes.map(r => `
+    <div class="metric-row">
+      <div class="metric-icon" style="background:rgba(45,106,79,0.1);font-size:14px;">💧</div>
+      <div class="metric-body">
+        <div class="metric-name">${String(r[V.CLIENTE]).split('(')[0].trim()}</div>
+        <div class="metric-desc">${formatFecha(r[V.FECHA])} · ${r[V.VENDEDOR]||'—'}</div>
+      </div>
+      <div class="metric-value" style="font-size:16px;">${fmt$(r[V.VENTA])}</div>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// UI HELPERS
+// ============================================================
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function setFiltro(f, btn) {
+  filtroActual = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderVentas();
+  renderOperaciones();
+}
+
+function setLoadingStatus(msg) {
+  document.getElementById('loadingStatus').textContent = msg;
+}
+
+function hideLoading() {
+  document.getElementById('loadingScreen').classList.add('hidden');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+fetchData();
+</script>
+</body>
+</html>
